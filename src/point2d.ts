@@ -37,7 +37,9 @@ export class Point2d {
    * @param value The point to get the distance from.
    */
   distanceTo(value: Point2d): number {
-    return Math.hypot(value.x - this.x, value.y - this.y);
+    return Number.parseFloat(
+      Math.hypot(value.x - this.x, value.y - this.y).toFixed(2),
+    );
   }
 
   /**
@@ -50,9 +52,9 @@ export class Point2d {
   }
 
   /**
-   * Rotates the point around the origin by the given angle in degree.
-   * @param origin The origin from which the rotation is supposed to be done.
+   * Rotates the point by the given angle in degree, around a point.
    * @param angle The rotation angle.
+   * @param origin The origin from which the rotation is supposed to be done.
    */
   rotate(angle: number, origin: Point2d = new Point2d()): void {
     if (angle === 0 || angle === 360) {
