@@ -1,4 +1,4 @@
-import { Line2d, Point2d, Vector2d } from "../dist/index";
+import { Line2d, Point2d, Rect2d, Vector2d } from "../dist/index";
 
 describe("Line2d", () => {
   const lineList = [
@@ -40,6 +40,28 @@ describe("Line2d", () => {
         expect(l.center.y).toEqual(center[1]);
       },
     );
+  });
+
+  describe("clone", () => {
+    it.each(lineList)("clones a line", ({ point1, point2 }) => {
+      const l1 = new Line2d(
+        new Point2d(point1[0], point1[1]),
+        new Point2d(point2[0], point2[1]),
+      );
+
+      const l2 = l1.clone();
+
+      expect(l1.p1.x).toEqual(l2.p1.x);
+      expect(l1.p1.y).toEqual(l2.p1.y);
+      expect(l1.p2.x).toEqual(l2.p2.x);
+      expect(l1.p2.y).toEqual(l2.p2.y);
+
+      expect(l1.p1 === l2.p1).toBe(false);
+      expect(l1.p2 === l2.p2).toBe(false);
+
+      expect(l1 !== l2).toBe(true);
+      expect(l1 === l2).toBe(false);
+    });
   });
 
   describe("translate", () => {
@@ -112,7 +134,7 @@ describe("Line2d", () => {
     ];
 
     it.each(rotationList)(
-      "rotates a point around another point",
+      "rotates a line around another point",
       ({ point1, point2, origin, angle, rotate1, rotate2 }) => {
         const l = new Line2d(
           new Point2d(point1[0], point1[1]),
@@ -156,65 +178,112 @@ describe("Line2d", () => {
     );
   });
 
-  const intersectList = [
+  const intersectLineList = [
     {
-      point1: [0, 0],
-      point2: [5, 5],
-      point3: [0, 5],
-      point4: [5, 0],
+      line1: [0, 0, 5, 5],
+      line2: [0, 5, 5, 0],
       intersect: true,
       intersectAt: [[2.5, 2.5]],
     },
     {
+      line1: [0, 0, 5, 5],
+      line2: [1, 0, 6, 5],
+      intersect: false,
+      intersectAt: [],
+    },
+    {
+      line1: [0, 0, 5, 5],
+      line2: [3, -2, 8, -2],
+      intersect: false,
+      intersectAt: [],
+    },
+    {
+      line1: [4, 1, 4, 4],
+      line2: [0, 0, 5, 0],
+      intersect: false,
+      intersectAt: [],
+    },
+  ];
+
+  const intersectRectList = [
+    {
       point1: [0, 0],
       point2: [5, 5],
-      point3: [1, 0],
-      point4: [6, 5],
+      location: [1, 3],
+      width: 10,
+      height: 20,
+      intersect: true,
+      intersectAt: [[3, 3]],
+    },
+    {
+      point1: [0, 0],
+      point2: [5, 5],
+      location: [3, -2],
+      width: 5,
+      height: 3,
       intersect: false,
       intersectAt: [],
     },
   ];
 
   describe("doesIntersect", () => {
-    it.each(intersectList)(
+    it.each(intersectLineList)(
       "check if two lines intersect",
-      ({ point1, point2, point3, point4, intersect }) => {
+      ({ line1, line2, intersect }) => {
         const l1 = new Line2d(
-          new Point2d(point1[0], point1[1]),
-          new Point2d(point2[0], point2[1]),
+          new Point2d(line1[0], line1[1]),
+          new Point2d(line1[2], line1[3]),
         );
 
         const l2 = new Line2d(
-          new Point2d(point3[0], point3[1]),
-          new Point2d(point4[0], point4[1]),
+          new Point2d(line2[0], line2[1]),
+          new Point2d(line2[2], line2[3]),
         );
 
         expect(l1.doesIntersect(l2)).toEqual(intersect);
       },
     );
-  });
 
-  describe("getIntersectionPoints", () => {
-    it.each(intersectList)(
-      "get intersection points",
-      ({ point1, point2, point3, point4, intersect, intersectAt }) => {
+    it.each(intersectRectList)(
+      "check if a line intersects with a rectangle",
+      ({ point1, point2, location, width, height, intersect }) => {
         const l1 = new Line2d(
           new Point2d(point1[0], point1[1]),
           new Point2d(point2[0], point2[1]),
         );
 
+        const rect1 = new Rect2d(
+          new Point2d(location[0], location[1]),
+          width,
+          height,
+        );
+
+        expect(l1.doesIntersect(rect1)).toEqual(intersect);
+      },
+    );
+  });
+
+  describe("getIntersectionPoints", () => {
+    it.each(intersectLineList)(
+      "get intersection points with a line",
+      ({ line1, line2, intersect, intersectAt }) => {
+        const l1 = new Line2d(
+          new Point2d(line1[0], line1[1]),
+          new Point2d(line1[2], line1[3]),
+        );
+
         const l2 = new Line2d(
-          new Point2d(point3[0], point3[1]),
-          new Point2d(point4[0], point4[1]),
+          new Point2d(line2[0], line2[1]),
+          new Point2d(line2[2], line2[3]),
         );
 
         var points = l1.getIntersectionPoints(l2);
 
         expect(
           points.length > 0 &&
-            points.every(
-              (v, i) => v.x === intersectAt[i][0] && v.y === intersectAt[i][1],
-            ),
+            points.every((p, i) => {
+              return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
+            }),
         ).toBe(intersect);
       },
     );

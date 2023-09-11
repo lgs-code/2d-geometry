@@ -12,6 +12,10 @@ export class Point2d {
     this.y = y;
   }
 
+  clone(): Point2d {
+    return new Point2d(this.x, this.y);
+  }
+
   add(value: Point2d): void {
     this.x += value.x;
     this.y += value.y;

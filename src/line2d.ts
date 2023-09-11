@@ -1,16 +1,26 @@
+import { log } from "console";
 import { Point2d } from "./point2d";
+import { Rect2d } from "./rect2d";
 import { Vector2d } from "./vector2d";
 
 /**
  * Defines a line in two-dimensional coordinates.
  */
 export class Line2d {
-  p1: Point2d;
-  p2: Point2d;
+  private _p1: Point2d;
+  private _p2: Point2d;
 
   constructor(p1: Point2d, p2: Point2d) {
-    this.p1 = p1;
-    this.p2 = p2;
+    this._p1 = p1;
+    this._p2 = p2;
+  }
+
+  get p1() {
+    return this._p1;
+  }
+
+  get p2() {
+    return this._p2;
   }
 
   /**
@@ -30,11 +40,15 @@ export class Line2d {
     );
   }
 
+  clone(): Line2d {
+    return new Line2d(this._p1.clone(), this._p2.clone());
+  }
+
   /**
    * Computes the distance of the given point to the line.
    * @param point The reference point.
    */
-  distanceTo(point: Point2d): number {
+  private distanceTo(point: Point2d): number {
     return (
       Math.abs(
         (this.p2.x - this.p1.x) * (this.p1.y - point.y) -
@@ -69,9 +83,16 @@ export class Line2d {
   /**
    * Checks if the given point is in the line.
    * @param point The reference point.
+   * @param threshold A value used as a threshold / range to check if the point is on the line.
    */
   isOnEdge(point: Point2d, threshold: number = 0): boolean {
-    return Math.round(this.distanceTo(point)) <= threshold;
+    return (
+      Math.round(this.distanceTo(point)) <= threshold &&
+      point.x >= Math.min(this.p1.x, this.p2.x) &&
+      point.x <= Math.max(this.p1.x, this.p2.x) &&
+      point.y >= Math.min(this.p1.y, this.p2.y) &&
+      point.y <= Math.max(this.p1.y, this.p2.y)
+    );
   }
 
   /**
@@ -84,15 +105,28 @@ export class Line2d {
   }
 
   /**
-   * Checks if the given line intersect with the current one.
+   * Checks if the given line intersect with the current line.
    * @param line The reference line.
-   * @returns true both lines intersect.
+   * @returns true if both intersect.
    */
-  doesIntersect(line: Line2d): boolean {
+  doesIntersect(line: Line2d): boolean;
+  /**
+   * Checks if the given rectangle intersect with the current line.
+   * @param rect The reference rectangle.
+   * @returns true if both intersect.
+   */
+  doesIntersect(rect: Rect2d): boolean;
+  doesIntersect(item: Line2d | Rect2d): boolean {
     // see
     // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
     // https://en.wikipedia.org/wiki/Intersection_(geometry)
-    return !this.isParallelTo(line);
+
+    if (item instanceof Line2d) {
+      return this.getIntersectionPoints(item).length > 0;
+    } else {
+      //if (item instanceof Rect2d)
+      return item.doesIntersect(this);
+    }
   }
 
   private getDenominator(line: Line2d): number {
@@ -102,12 +136,8 @@ export class Line2d {
     );
   }
 
-  /**
-   * Gets the list of intersection points.
-   * @param line The reference line.
-   */
-  getIntersectionPoints(line: Line2d): Point2d[] {
-    if (!this.doesIntersect(line)) {
+  private getIntersectionWithLine(line: Line2d): Point2d[] {
+    if (this.isParallelTo(line)) {
       return [];
     }
 
@@ -121,6 +151,34 @@ export class Line2d {
     const py =
       (deta * (line.p1.y - line.p2.y) - (this.p1.y - this.p2.y) * detb) / denom;
 
-    return [new Point2d(px, py)];
+    const theoricalPoint = new Point2d(
+      Number.parseFloat(px.toFixed(2)),
+      Number.parseFloat(py.toFixed(2)),
+    );
+
+    return this.isOnEdge(theoricalPoint) && line.isOnEdge(theoricalPoint)
+      ? [theoricalPoint]
+      : [];
+  }
+
+  /**
+   * Gets the list of intersection points.
+   * @param line The reference line.
+   * @returns the intersection points, if any.
+   */
+  getIntersectionPoints(line: Line2d): Point2d[];
+  /**
+   * Gets the list of intersection points.
+   * @param line The reference rectangle.
+   * @returns the intersection points, if any.
+   */
+  getIntersectionPoints(rect: Rect2d): Point2d[];
+  getIntersectionPoints(item: Line2d | Rect2d): Point2d[] {
+    if (item instanceof Line2d) {
+      return this.getIntersectionWithLine(item);
+    } else {
+      //if (item instanceof Rect2d)
+      return item.getIntersectionPoints(this);
+    }
   }
 }

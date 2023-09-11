@@ -23,6 +23,19 @@ describe("Point2d", () => {
     });
   });
 
+  describe("clone", () => {
+    it.each(pointList)("clones a point", (x, y) => {
+      const p1 = new Point2d(x, y);
+
+      const p2 = p1.clone();
+
+      expect(p1.x).toEqual(p2.x);
+      expect(p1.y).toEqual(p2.y);
+      expect(p1 !== p2).toBe(true);
+      expect(p1 === p2).toBe(false);
+    });
+  });
+
   describe("add", () => {
     it.each(pointList)("moves a point when adding coordinates", (x, y) => {
       const p = new Point2d(x, y);
