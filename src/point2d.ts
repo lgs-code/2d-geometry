@@ -12,8 +12,29 @@ export class Point2d {
     this.y = y;
   }
 
+  /**
+   * Gets the distance between two points.
+   * @param x1 x coordinate of the first point.
+   * @param y1 y coordinate of the first point.
+   * @param x2 x coordinate of the second point.
+   * @param y2 y coordinate of the second point.
+   * @returns The distance.
+   */
+  public static getDistance(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): number {
+    return Number.parseFloat(Math.hypot(x2 - x1, y2 - y1).toFixed(2));
+  }
+
   clone(): Point2d {
     return new Point2d(this.x, this.y);
+  }
+
+  equals(p: Point2d): boolean {
+    return this.x == p.x && this.y === p.y;
   }
 
   add(value: Point2d): void {
@@ -41,9 +62,7 @@ export class Point2d {
    * @param value The point to get the distance from.
    */
   distanceTo(value: Point2d): number {
-    return Number.parseFloat(
-      Math.hypot(value.x - this.x, value.y - this.y).toFixed(2),
-    );
+    return Point2d.getDistance(this.x, this.y, value.x, value.y);
   }
 
   /**

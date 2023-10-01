@@ -2,9 +2,30 @@ import { Line2d, Point2d, Rect2d, Vector2d } from "../dist/index";
 
 describe("Rect2d", () => {
   const rectList = [
-    { location: [0, 0], width: 5, height: 5, center: [2.5, 2.5] },
-    { location: [7, 9], width: 6, height: 8, center: [10, 13] },
-    { location: [-3, 6], width: 8, height: 14, center: [1, 13] },
+    {
+      location: [0, 0],
+      width: 5,
+      height: 5,
+      center: [2.5, 2.5],
+      perimeter: 20,
+      area: 25,
+    },
+    {
+      location: [7, 9],
+      width: 6,
+      height: 8,
+      center: [10, 13],
+      perimeter: 28,
+      area: 48,
+    },
+    {
+      location: [-3, 6],
+      width: 8,
+      height: 14,
+      center: [1, 13],
+      perimeter: 44,
+      area: 112,
+    },
   ];
 
   describe("ctor", () => {
@@ -28,7 +49,7 @@ describe("Rect2d", () => {
   describe("props", () => {
     it.each(rectList)(
       "check center, vertices and edges",
-      ({ location, width, height, center }) => {
+      ({ location, width, height, center, perimeter, area }) => {
         const r = new Rect2d(
           new Point2d(location[0], location[1]),
           width,
@@ -47,8 +68,12 @@ describe("Rect2d", () => {
 
         expect(r.edges.length).toEqual(4);
 
-        expect(r.center.x).toEqual(center[0]);
-        expect(r.center.y).toEqual(center[1]);
+        expect(r.centroid.x).toEqual(center[0]);
+        expect(r.centroid.y).toEqual(center[1]);
+
+        expect(r.area).toEqual(area);
+
+        expect(r.perimeter).toEqual(perimeter);
       },
     );
   });

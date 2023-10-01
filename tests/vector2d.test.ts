@@ -101,6 +101,17 @@ describe("Vector2d", () => {
     const dotList = [
       { vect1: [2, 3], vect2: [7, 2], dot: 20 },
       { vect1: [6, 1], vect2: [1, 1], dot: 7 },
+      // same direction, 45° angle
+      { vect1: [5, 0], vect2: [5, 5], dot: 25 },
+      // perpendicular, 90° angle
+      { vect1: [5, 0], vect2: [0, 5], dot: 0 },
+      { vect1: [5, 0], vect2: [0, -5], dot: 0 },
+      // opposite direction, 135° angle
+      { vect1: [5, 0], vect2: [-5, 5], dot: -25 },
+      // pretty close to each other
+      { vect1: [5, 0], vect2: [3, 0.5], dot: 15 },
+      // pretty nearly perpendicular
+      { vect1: [5, 0], vect2: [0.5, 5], dot: 2.5 },
     ];
 
     it.each(dotList)("computes dot product", ({ vect1, vect2, dot }) => {
