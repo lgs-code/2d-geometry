@@ -153,16 +153,6 @@ export class Triangle2d extends Polygon2d {
   }
 
   /**
-   * Indicates if the triangle is equilateral.
-   * @returns true if this is the case.
-   */
-  get isEquilateral(): boolean {
-    const lengths = this.edges.map((e) => e.length);
-
-    return lengths[0] === lengths[1] && lengths[0] === lengths[2];
-  }
-
-  /**
    * Indicates if the triangle is isoceles.
    * @returns true if this is the case.
    */

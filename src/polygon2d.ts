@@ -96,6 +96,30 @@ export abstract class Polygon2d {
   }
 
   /**
+   * Indicates if the polygon have all corner angles equal.
+   * @returns true if this is the case.
+   */
+  get isEquiAngular(): boolean {
+    const angles = this.edges.map((edge, index, array) =>
+      index === array.length - 1
+        ? edge.angleTo(array[0])
+        : edge.angleTo(array[index + 1]),
+    );
+
+    return [...new Set(angles)].length === 1;
+  }
+
+  /**
+   * Indicates if the polygon have all edges of the same length.
+   * @returns true if this is the case.
+   */
+  get isEquilateral(): boolean {
+    const lengths = this.edges.map((e) => e.length);
+
+    return [...new Set(lengths)].length === 1;
+  }
+
+  /**
    * Translates the polygon using the given vector for direction.
    * @param vector The vector defining the direction.
    */
