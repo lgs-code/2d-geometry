@@ -158,6 +158,38 @@ describe("Line2d", () => {
     );
   });
 
+  describe("goesSameDirection", () => {
+    const linesList = [
+      {
+        line1: [0, 0, 0, 5],
+        line2: [0, 0, 0, 10],
+        same: true,
+      },
+      {
+        line1: [0, 0, 5, 0],
+        line2: [0, 0, 0, 5],
+        same: false,
+      },
+    ];
+
+    it.each(linesList)(
+      "check if $line1 and $line2 goes in the same direction, expecting $same",
+      ({ line1, line2, same }) => {
+        const l1 = new Line2d(
+          new Point2d(line1[0], line1[1]),
+          new Point2d(line1[2], line1[3]),
+        );
+
+        const l2 = new Line2d(
+          new Point2d(line2[0], line2[1]),
+          new Point2d(line2[2], line2[3]),
+        );
+
+        expect(l1.goesSameDirection(l2)).toEqual(same);
+      },
+    );
+  });
+
   describe("angleTo", () => {
     const angleList = [
       {
@@ -173,7 +205,7 @@ describe("Line2d", () => {
       {
         line1: [0, 0, 5, 0],
         line2: [0, 0, 0, -5],
-        angle: -90,
+        angle: 90,
       },
       {
         line1: [0, 0, 5, 0],
@@ -188,12 +220,12 @@ describe("Line2d", () => {
       {
         line1: [0, 0, 0, 5],
         line2: [0, 5, 5, 0],
-        angle: -135,
+        angle: 45,
       },
     ];
 
     it.each(angleList)(
-      "check the angle between two lines",
+      "check the angle between $line1 and $line2, expecting $angle°",
       ({ line1, line2, angle }) => {
         const l1 = new Line2d(
           new Point2d(line1[0], line1[1]),
@@ -455,7 +487,7 @@ describe("Line2d", () => {
     ];
 
     it.each(orhoList)(
-      "get the orthogonal line starting at a point",
+      "get the orthogonal line, clockwise $clockwise, from $line starting at a $point, expecting $check",
       ({ line, point, length, check, clockwise }) => {
         const l = new Line2d(
           new Point2d(line[0], line[1]),

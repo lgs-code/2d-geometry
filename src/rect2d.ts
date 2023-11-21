@@ -33,14 +33,14 @@ export class Rect2d extends Quadiralteral2d {
   /**
    * Gets the area.
    */
-  get area(): number {
+  override get area(): number {
     return this.width * this.height;
   }
 
   /**
    * Gets the perimeter.
    */
-  get perimeter(): number {
+  override get perimeter(): number {
     return this.width * 2 + this.height * 2;
   }
 }

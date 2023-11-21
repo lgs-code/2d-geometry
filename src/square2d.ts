@@ -40,14 +40,14 @@ export class Square2d extends Quadiralteral2d {
   /**
    * Gets the area.
    */
-  get area(): number {
+  override get area(): number {
     return this.width * this.width;
   }
 
   /**
    * Gets the perimeter.
    */
-  get perimeter(): number {
+  override get perimeter(): number {
     return this.width * 4;
   }
 }

@@ -32,7 +32,7 @@ export class Triangle2d extends Polygon2d {
   /**
    * Gets the area.
    */
-  get area(): number {
+  override get area(): number {
     const b = this.edges[0].length;
     const h = this.edges[0].getOrthogonalLineThrough(this.edges[1].p2).length;
 

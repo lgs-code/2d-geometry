@@ -1,6 +1,6 @@
-import { log } from "console";
 import { Point2d } from "./point2d";
-import { Quadiralteral2d } from "./quadrilateral2d";
+import { Polygon2d } from "./polygon2d";
+import { Circle2d } from "./circle2d";
 import { Vector2d } from "./vector2d";
 
 /**
@@ -55,6 +55,22 @@ export class Line2d {
       (this.p1.x + this.p2.x) / 2,
       (this.p1.y + this.p2.y) / 2,
     );
+  }
+
+  /**
+   * Checks if the line is vertical.
+   * @returns true is this is the case.
+   */
+  get isVertical(): boolean {
+    return this.p2.x - this.p1.x === 0;
+  }
+
+  /**
+   * Checks if the line is horizontal.
+   * @returns true is this is the case.
+   */
+  get isHorizontal(): boolean {
+    return this.p2.y - this.p1.y === 0;
   }
 
   clone(): Line2d {
@@ -121,9 +137,10 @@ export class Line2d {
   /**
    * Gets the angle between the given line.
    * @param line The reference line.
+   * @param interiorAngle A value indicating if this is the interior that is expected.
    * @returns The angle.
    */
-  angleTo(line: Line2d): number {
+  angleTo(line: Line2d, interiorAngle: boolean = true): number {
     const dAx = this.p2.x - this.p1.x;
     const dAy = this.p2.y - this.p1.y;
     const dBx = line.p2.x - line.p1.x;
@@ -131,6 +148,20 @@ export class Line2d {
 
     const angleRad = Math.atan2(dAx * dBy - dAy * dBx, dAx * dBx + dAy * dBy);
     const angleDeg = Number.parseFloat((angleRad * (180 / Math.PI)).toFixed(2));
+
+    if (angleDeg == 0) {
+      return 0;
+    }
+
+    if (interiorAngle) {
+      if (this.p2.x <= line.p1.x && Math.abs(angleDeg) <= 90) {
+        return 180 - angleDeg;
+      }
+
+      if (angleDeg < 0) {
+        return 180 + angleDeg;
+      }
+    }
 
     return angleDeg;
   }
@@ -142,14 +173,14 @@ export class Line2d {
    * @returns The resulting line.
    */
   getLineAtAngle(angle: number, length: number = 20): Line2d {
-    if (this.isHorizontal() && (angle === 0 || Math.abs(angle) === 360)) {
+    if (this.isHorizontal && (angle === 0 || Math.abs(angle) === 360)) {
       return new Line2d(
         this.p1.clone(),
         new Point2d(this.p1.x + length, this.p1.y),
       );
     }
 
-    if (this.isVertical()) {
+    if (this.isVertical) {
       if (angle === 0 || Math.abs(angle) === 360) {
         return new Line2d(
           this.p1.clone(),
@@ -164,7 +195,7 @@ export class Line2d {
     }
 
     const angleRad = angle * (Math.PI / 180);
-    const invert = this.isVertical();
+    const invert = this.isVertical;
 
     const x = Number.parseFloat(
       (this.p1.x + Math.cos(angleRad) * length).toFixed(3),
@@ -191,10 +222,10 @@ export class Line2d {
 
     let p4 = new Point2d();
 
-    if (this.isHorizontal()) {
+    if (this.isHorizontal) {
       p4.x = p3.x;
       p4.y = p1.y;
-    } else if (this.isVertical()) {
+    } else if (this.isVertical) {
       p4.x = p1.x;
       p4.y = p3.y;
     } else {
@@ -234,10 +265,10 @@ export class Line2d {
 
     let p4 = new Point2d();
 
-    if (this.isHorizontal()) {
+    if (this.isHorizontal) {
       p4.x = p3.x;
       p4.y = p1.y + (clockwise === true ? -length : length);
-    } else if (this.isVertical()) {
+    } else if (this.isVertical) {
       p4.x = p1.x + (clockwise === true ? length : -length);
       p4.y = p3.y;
     } else {
@@ -246,6 +277,7 @@ export class Line2d {
           p1,
           new Point2d(p1.x + length * (clockwise === true ? -1 : 1), p1.y),
         ),
+        false,
       );
       const teta = (90 - a) / (180 / Math.PI);
 
@@ -257,22 +289,6 @@ export class Line2d {
   }
 
   /**
-   * Checks if the line is vertical.
-   * @returns true is this is the case.
-   */
-  isVertical(): boolean {
-    return this.p2.x - this.p1.x === 0;
-  }
-
-  /**
-   * Checks if the line is horizontal.
-   * @returns true is this is the case.
-   */
-  isHorizontal(): boolean {
-    return this.p2.y - this.p1.y === 0;
-  }
-
-  /**
    * Is the current line perpendicular to the given one.
    * @param line The comparision line.
    * @returns true if this the case, otherwise false.
@@ -281,19 +297,19 @@ export class Line2d {
     let m1: number, m2: number;
 
     // both lines have infinite slope
-    if (this.isVertical() && line.isVertical()) {
+    if (this.isVertical && line.isVertical) {
       return false;
     }
 
     // only line 1 has infinite slope
-    if (this.isVertical()) {
+    if (this.isVertical) {
       m2 = (line.p2.y - line.p1.y) / (line.p2.x - line.p1.x);
 
       return m2 === 0;
     }
 
     // only line 2 has infinite slope
-    if (line.isVertical()) {
+    if (line.isVertical) {
       m1 = (this.p2.y - this.p1.y) / (this.p2.x - this.p1.x);
 
       return m1 === 0;
@@ -351,16 +367,23 @@ export class Line2d {
    * @param rect The reference quadrilateral.
    * @returns true if both intersect.
    */
-  doesIntersect(rect: Quadiralteral2d): boolean;
-  doesIntersect(item: Line2d | Quadiralteral2d): boolean {
+  doesIntersect(polygon: Polygon2d): boolean;
+  /**
+   * Checks if the given circle intersect with the current polygon.
+   * @param circle The reference circle.
+   * @returns true if both intersect.
+   */
+  doesIntersect(circle: Circle2d): boolean;
+  doesIntersect(item: Line2d | Polygon2d | Circle2d): boolean {
     // see
     // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
     // https://en.wikipedia.org/wiki/Intersection_(geometry)
 
     if (item instanceof Line2d) {
       return this.getIntersectionPoints(item).length > 0;
+    } else if (item instanceof Polygon2d) {
+      return item.doesIntersect(this);
     } else {
-      //if (item instanceof Quadiralteral2d)
       return item.doesIntersect(this);
     }
   }
@@ -414,16 +437,24 @@ export class Line2d {
   getIntersectionPoints(line: Line2d): Point2d[];
   /**
    * Gets the list of intersection points.
-   * @param line The reference quadrilateral.
+   * @param polygon The reference polygon.
    * @returns the intersection points, if any.
    */
-  getIntersectionPoints(rect: Quadiralteral2d): Point2d[];
-  getIntersectionPoints(item: Line2d | Quadiralteral2d): Point2d[] {
+  getIntersectionPoints(polygon: Polygon2d): Point2d[];
+  /**
+   * Gets the list of intersection points.
+   * @param circle The reference circle.
+   * @returns the intersection points, if any.
+   */
+  getIntersectionPoints(circle: Circle2d): Point2d[];
+  getIntersectionPoints(item: Line2d | Polygon2d | Circle2d): Point2d[] {
     if (item instanceof Line2d) {
       const p = this.getIntersectionWithSegment(item);
       return p !== null ? [p] : [];
+    } else if (item instanceof Polygon2d) {
+      return item.getIntersectionPoints(this);
     } else {
-      //if (item instanceof Quadiralteral2d)
+      // instanceof Circle2d
       return item.getIntersectionPoints(this);
     }
   }

@@ -6,7 +6,7 @@ import { Polygon2d } from "./polygon2d";
  * Defines a quadrilateral in two-dimensional coordinates.
  * @see {@link https://en.wikipedia.org/wiki/Quadrilateral}
  */
-export abstract class Quadiralteral2d extends Polygon2d {
+export class Quadiralteral2d extends Polygon2d {
   constructor(vertices: Point2d[]);
   constructor(edges: Line2d[]);
   constructor(item: Point2d[] | Line2d[]) {
@@ -27,7 +27,7 @@ export abstract class Quadiralteral2d extends Polygon2d {
   /**
    * Gets the center of the quadrilateral.
    */
-  get centroid(): Point2d {
+  override get centroid(): Point2d {
     var diag1 = new Line2d(this.vertices[0], this.vertices[2]);
     var diag2 = new Line2d(this.vertices[1], this.vertices[3]);
 

@@ -1,12 +1,13 @@
 import { Point2d } from "./point2d";
 import { Line2d } from "./line2d";
+import { Circle2d } from "./circle2d";
 import { Vector2d } from "./vector2d";
 
 /**
  * Defines a polygon in two-dimensional coordinates.
  * @see {@link https://en.wikipedia.org/wiki/Polygon}
  */
-export abstract class Polygon2d {
+export class Polygon2d {
   protected _vertices: Point2d[];
   protected _edges: Line2d[];
 
@@ -76,12 +77,51 @@ export abstract class Polygon2d {
   /**
    * Gets the center of the polygon.
    */
-  abstract get centroid(): Point2d;
+  get centroid(): Point2d {
+    const length = this._vertices.length;
+
+    const sumX = this._vertices
+      .map((v) => v.x)
+      .reduce((accumulator, currentValue) => {
+        return accumulator + currentValue;
+      }, 0);
+
+    const sumY = this._vertices
+      .map((v) => v.y)
+      .reduce((accumulator, currentValue) => {
+        return accumulator + currentValue;
+      }, 0);
+
+    return new Point2d(sumX / length, sumY / length);
+  }
 
   /**
    * Gets the area.
    */
-  abstract get area(): number;
+  get area(): number {
+    const triangles: Line2d[][] = [];
+
+    this.triangulate().forEach((points) => {
+      triangles.push([
+        new Line2d(points[0], points[1]),
+        new Line2d(points[1], points[2]),
+        new Line2d(points[2], points[0]),
+      ]);
+    });
+
+    const area = triangles
+      .map((edges) => {
+        const b = edges[0].length;
+        const h = edges[0].getOrthogonalLineThrough(edges[1].p2).length;
+
+        return (b * h) / 2;
+      })
+      .reduce((accumulator, currentValue) => {
+        return accumulator + currentValue;
+      }, 0);
+
+    return Number.parseFloat(area.toFixed(1));
+  }
 
   /**
    * Gets the perimeter.
@@ -96,17 +136,21 @@ export abstract class Polygon2d {
   }
 
   /**
+   * Gets the interior angles.
+   */
+  get interiorAngles(): number[] {
+    const bound = this.edges.length - 1;
+    return this.edges.map((edge, index, array) =>
+      index === bound ? edge.angleTo(array[0]) : edge.angleTo(array[index + 1]),
+    );
+  }
+
+  /**
    * Indicates if the polygon have all corner angles equal.
    * @returns true if this is the case.
    */
   get isEquiAngular(): boolean {
-    const angles = this.edges.map((edge, index, array) =>
-      index === array.length - 1
-        ? edge.angleTo(array[0])
-        : edge.angleTo(array[index + 1]),
-    );
-
-    return [...new Set(angles)].length === 1;
+    return [...new Set(this.interiorAngles)].length === 1;
   }
 
   /**
@@ -117,6 +161,22 @@ export abstract class Polygon2d {
     const lengths = this.edges.map((e) => e.length);
 
     return [...new Set(lengths)].length === 1;
+  }
+
+  /**
+   * Gets a value indicating if the polygon is convex.
+   * @see {@link https://en.wikipedia.org/wiki/Convex_polygon}
+   */
+  get isConvex(): boolean {
+    return !this.isConcave;
+  }
+
+  /**
+   * Gets a value indicating if the polygon is concave.
+   * @see {@link https://en.wikipedia.org/wiki/Concave_polygon}
+   */
+  get isConcave(): boolean {
+    return this.interiorAngles.some((a) => a > 180);
   }
 
   /**
@@ -148,11 +208,49 @@ export abstract class Polygon2d {
    * Checks if the given point is on one edge of the polygon.
    * @param point The reference point.
    * @param threshold A value used as a threshold / range to check if the point is on one edge.
+   * @returns true if the point is on edge.
    */
   isOnEdge(point: Point2d, threshold: number = 0): boolean {
     return this.edges.some((edge) => {
       return edge.isOnSegment(point, threshold);
     });
+  }
+
+  /**
+   * Triangulates the polygon using "Fan Triangulation".
+   * @returns an array of points representing the triangles.
+   * @see {@link https://en.wikipedia.org/wiki/Fan_triangulation}
+   */
+  triangulate(): Point2d[][] {
+    const bound = this.edges.length - 1;
+    const reflexPoints = this.edges.map((edge, index, array) => {
+      const angle =
+        index === bound
+          ? edge.angleTo(array[0])
+          : edge.angleTo(array[index + 1]);
+
+      return { angle: angle, point: edge.p2 };
+    });
+
+    const triangles: Point2d[][] = [];
+    let workingSet = [...reflexPoints];
+
+    const concaveIndex = reflexPoints.findIndex((t) => t.angle > 180);
+    if (concaveIndex !== -1) {
+      workingSet = reflexPoints
+        .slice(concaveIndex) // from the reflex interior angle to the end
+        .concat(reflexPoints.slice(0, concaveIndex)); // from the beginning to the reflex interior angle
+    }
+
+    for (let i = 1; i < workingSet.length - 1; i++) {
+      triangles.push([
+        workingSet[0].point,
+        workingSet[i].point,
+        workingSet[i + 1].point,
+      ]);
+    }
+
+    return triangles;
   }
 
   /**
@@ -163,19 +261,28 @@ export abstract class Polygon2d {
   doesIntersect(line: Line2d): boolean;
   /**
    * Checks if the given polygon intersect with the current polygon.
-   * @param rect The reference polygon.
+   * @param polygon The reference polygon.
    * @returns true if both intersect.
    */
-  doesIntersect(rect: Polygon2d): boolean;
-  doesIntersect(item: Line2d | Polygon2d): boolean {
+  doesIntersect(polygon: Polygon2d): boolean;
+  /**
+   * Checks if the given circle intersect with the current polygon.
+   * @param circle The reference circle.
+   * @returns true if both intersect.
+   */
+  doesIntersect(circle: Circle2d): boolean;
+  doesIntersect(item: Line2d | Polygon2d | Circle2d): boolean {
     if (item instanceof Line2d) {
       return this.edges.some((edge) => {
         return item.doesIntersect(edge);
       });
-    } else {
-      // if (item instanceof Polygon2d)
+    } else if (item instanceof Polygon2d) {
       return this.edges.some((edge) => {
         return item.edges.some((iedge) => iedge.doesIntersect(edge));
+      });
+    } else {
+      return this.edges.some((edge) => {
+        return item.doesIntersect(edge);
       });
     }
   }
@@ -188,23 +295,33 @@ export abstract class Polygon2d {
   getIntersectionPoints(line: Line2d): Point2d[];
   /**
    * Gets the list of intersection points.
-   * @param line The reference polygon.
+   * @param polygon The reference polygon.
    * @returns the intersection points, if any.
    */
-  getIntersectionPoints(rect: Polygon2d): Point2d[];
-  getIntersectionPoints(item: Line2d | Polygon2d): Point2d[] {
+  getIntersectionPoints(polygon: Polygon2d): Point2d[];
+  /**
+   * Gets the list of intersection points.
+   * @param circle The reference circle.
+   * @returns the intersection points, if any.
+   */
+  getIntersectionPoints(circle: Circle2d): Point2d[];
+  getIntersectionPoints(item: Line2d | Polygon2d | Circle2d): Point2d[] {
     var points = [];
 
     if (item instanceof Line2d) {
       this.edges.forEach((edge) => {
         points = points.concat(edge.getIntersectionPoints(item));
       });
-    } else {
-      //if (item instanceof Polygon2d)
+    } else if (item instanceof Polygon2d) {
       this.edges.forEach((edge) => {
         item.edges.forEach((iedge) => {
           points = points.concat(iedge.getIntersectionPoints(edge));
         });
+      });
+    } else {
+      // instanceof Circle2d
+      this.edges.forEach((edge) => {
+        points = points.concat(item.getIntersectionWithSegment(edge));
       });
     }
 
