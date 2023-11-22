@@ -1,7 +1,8 @@
 import { Point2d } from "./point2d";
 import { Line2d } from "./line2d";
-import { Polygon2d } from "./polygon2d";
 import { Vector2d } from "./vector2d";
+import { Ellipse2d } from "./ellipse2d";
+import { Polygon2d } from "./polygon2d";
 
 /**
  * Defines a circle in two-dimensional coordinates.
@@ -24,9 +25,9 @@ export class Circle2d {
   }
 
   /**
-   * Gets the circumference of the circle.
+   * Gets the perimeter of the circle.
    */
-  get circumference(): number {
+  get perimeter(): number {
     return Number.parseFloat((2 * Math.PI * this.radius).toFixed(2));
   }
 
@@ -56,12 +57,19 @@ export class Circle2d {
    * Checks if the given point is on one edge of the circle.
    * @param point The reference point.
    * @param threshold A value used as a threshold / range to check if the point is on one edge.
+   * @returns true if the point is on edge.
    */
   isOnEdge(point: Point2d, threshold: number = 0): boolean {
-    return (
-      Math.abs(this.radius - Math.round(this._center.distanceTo(point))) <=
-      threshold
-    );
+    return Math.abs(this.radius - this._center.distanceTo(point)) <= threshold;
+  }
+
+  /**
+   * Checks if the given point is located inside the circle.
+   * @param point The reference point.
+   * @returns true if the point is inside the circle.
+   */
+  contains(point: Point2d): boolean {
+    return this.radius >= this._center.distanceTo(point);
   }
 
   /**
@@ -82,13 +90,22 @@ export class Circle2d {
    * @returns true if both intersect.
    */
   doesIntersect(circle: Circle2d): boolean;
-  doesIntersect(item: Line2d | Polygon2d | Circle2d): boolean {
+  /**
+   * Checks if the given ellipse intersect with the current circle.
+   * @param ellipse The reference ellipse.
+   * @returns true if both intersect.
+   */
+  doesIntersect(ellipse: Ellipse2d): boolean;
+  doesIntersect(item: Line2d | Polygon2d | Circle2d | Ellipse2d): boolean {
     if (item instanceof Line2d) {
-      return this.getIntersectionPoints(item).length > 0;
+      return this.getIntersectionWithSegment(item).length > 0;
     } else if (item instanceof Polygon2d) {
       return item.doesIntersect(this);
+    } else if (item instanceof Circle2d) {
+      return this.getIntersectionWithCircle(item).length > 0;
     } else {
-      return this.getIntersectionPoints(item).length > 0;
+      // instanceof Ellipse2d
+      return item.doesIntersect(this);
     }
   }
 
@@ -233,14 +250,24 @@ export class Circle2d {
    * @returns the intersection points, if any.
    */
   getIntersectionPoints(circle: Circle2d): Point2d[];
-  getIntersectionPoints(item: Line2d | Polygon2d | Circle2d): Point2d[] {
+  /**
+   * Gets the list of intersection points.
+   * @param ellipse The reference ellipse.
+   * @returns the intersection points, if any.
+   */
+  getIntersectionPoints(ellipse: Ellipse2d): Point2d[];
+  getIntersectionPoints(
+    item: Line2d | Polygon2d | Circle2d | Ellipse2d,
+  ): Point2d[] {
     if (item instanceof Line2d) {
       return this.getIntersectionWithSegment(item);
     } else if (item instanceof Polygon2d) {
       return item.getIntersectionPoints(this);
-    } else {
-      //if (item instanceof Circle2d)
+    } else if (item instanceof Circle2d) {
       return this.getIntersectionWithCircle(item);
+    } else {
+      //if (item instanceof Ellipse2d)
+      return item.getIntersectionPoints(this);
     }
   }
 }

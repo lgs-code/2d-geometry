@@ -1,6 +1,7 @@
 import { Point2d } from "./point2d";
 import { Line2d } from "./line2d";
 import { Circle2d } from "./circle2d";
+import { Ellipse2d } from "./ellipse2d";
 import { Vector2d } from "./vector2d";
 
 /**
@@ -271,7 +272,13 @@ export class Polygon2d {
    * @returns true if both intersect.
    */
   doesIntersect(circle: Circle2d): boolean;
-  doesIntersect(item: Line2d | Polygon2d | Circle2d): boolean {
+  /**
+   * Checks if the given ellipse intersect with the current polygon.
+   * @param ellipse The reference ellipse.
+   * @returns true if both intersect.
+   */
+  doesIntersect(ellipse: Ellipse2d): boolean;
+  doesIntersect(item: Line2d | Polygon2d | Circle2d | Ellipse2d): boolean {
     if (item instanceof Line2d) {
       return this.edges.some((edge) => {
         return item.doesIntersect(edge);
@@ -280,7 +287,12 @@ export class Polygon2d {
       return this.edges.some((edge) => {
         return item.edges.some((iedge) => iedge.doesIntersect(edge));
       });
+    } else if (item instanceof Circle2d) {
+      return this.edges.some((edge) => {
+        return item.doesIntersect(edge);
+      });
     } else {
+      // instanceof Ellipse2d
       return this.edges.some((edge) => {
         return item.doesIntersect(edge);
       });
@@ -305,7 +317,15 @@ export class Polygon2d {
    * @returns the intersection points, if any.
    */
   getIntersectionPoints(circle: Circle2d): Point2d[];
-  getIntersectionPoints(item: Line2d | Polygon2d | Circle2d): Point2d[] {
+  /**
+   * Gets the list of intersection points.
+   * @param ellipse The reference ellipse.
+   * @returns the intersection points, if any.
+   */
+  getIntersectionPoints(ellipse: Ellipse2d): Point2d[];
+  getIntersectionPoints(
+    item: Line2d | Polygon2d | Circle2d | Ellipse2d,
+  ): Point2d[] {
     var points = [];
 
     if (item instanceof Line2d) {
@@ -318,8 +338,12 @@ export class Polygon2d {
           points = points.concat(iedge.getIntersectionPoints(edge));
         });
       });
+    } else if (item instanceof Circle2d) {
+      this.edges.forEach((edge) => {
+        points = points.concat(item.getIntersectionWithSegment(edge));
+      });
     } else {
-      // instanceof Circle2d
+      // instanceof Ellipse2d
       this.edges.forEach((edge) => {
         points = points.concat(item.getIntersectionWithSegment(edge));
       });

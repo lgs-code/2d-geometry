@@ -1,6 +1,7 @@
 import { Point2d } from "./point2d";
 import { Polygon2d } from "./polygon2d";
 import { Circle2d } from "./circle2d";
+import { Ellipse2d } from "./ellipse2d";
 import { Vector2d } from "./vector2d";
 
 /**
@@ -369,21 +370,26 @@ export class Line2d {
    */
   doesIntersect(polygon: Polygon2d): boolean;
   /**
-   * Checks if the given circle intersect with the current polygon.
+   * Checks if the given circle intersect with the current line.
    * @param circle The reference circle.
    * @returns true if both intersect.
    */
   doesIntersect(circle: Circle2d): boolean;
-  doesIntersect(item: Line2d | Polygon2d | Circle2d): boolean {
-    // see
-    // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
-    // https://en.wikipedia.org/wiki/Intersection_(geometry)
-
+  /**
+   * Checks if the given ellipse intersect with the current line.
+   * @param circle The reference ellipse.
+   * @returns true if both intersect.
+   */
+  doesIntersect(ellipse: Ellipse2d): boolean;
+  doesIntersect(item: Line2d | Polygon2d | Circle2d | Ellipse2d): boolean {
     if (item instanceof Line2d) {
-      return this.getIntersectionPoints(item).length > 0;
+      return this.getIntersectionWithSegment(item) !== null;
     } else if (item instanceof Polygon2d) {
       return item.doesIntersect(this);
+    } else if (item instanceof Circle2d) {
+      return item.doesIntersect(this);
     } else {
+      // instanceof Ellipse2d
       return item.doesIntersect(this);
     }
   }
@@ -447,14 +453,24 @@ export class Line2d {
    * @returns the intersection points, if any.
    */
   getIntersectionPoints(circle: Circle2d): Point2d[];
-  getIntersectionPoints(item: Line2d | Polygon2d | Circle2d): Point2d[] {
+  /**
+   * Gets the list of intersection points.
+   * @param ellipse The reference ellipse.
+   * @returns the intersection points, if any.
+   */
+  getIntersectionPoints(ellipse: Ellipse2d): Point2d[];
+  getIntersectionPoints(
+    item: Line2d | Polygon2d | Circle2d | Ellipse2d,
+  ): Point2d[] {
     if (item instanceof Line2d) {
       const p = this.getIntersectionWithSegment(item);
       return p !== null ? [p] : [];
     } else if (item instanceof Polygon2d) {
       return item.getIntersectionPoints(this);
+    } else if (item instanceof Circle2d) {
+      return item.getIntersectionPoints(this);
     } else {
-      // instanceof Circle2d
+      // instanceof Ellipse2d
       return item.getIntersectionPoints(this);
     }
   }

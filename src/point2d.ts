@@ -70,8 +70,8 @@ export class Point2d {
    * @param vector The vector defining the direction.
    */
   translate(vector: Vector2d): void {
-    this.x += vector.vx;
-    this.y += vector.vy;
+    this.x += vector.x;
+    this.y += vector.y;
   }
 
   /**

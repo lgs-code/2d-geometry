@@ -10,9 +10,9 @@ import {
 
 describe("Circle2d", () => {
   const circleList = [
-    { center: [0, 0], radius: 5, area: 78.54, circumference: 31.42 },
-    { center: [7, 9], radius: 2.5, area: 19.63, circumference: 15.71 },
-    { center: [0, 27], radius: 9.2, area: 265.9, circumference: 57.81 },
+    { center: [0, 0], radius: 5, area: 78.54, perimeter: 31.42 },
+    { center: [7, 9], radius: 2.5, area: 19.63, perimeter: 15.71 },
+    { center: [0, 27], radius: 9.2, area: 265.9, perimeter: 57.81 },
   ];
 
   describe("ctor", () => {
@@ -30,13 +30,13 @@ describe("Circle2d", () => {
 
   describe("props", () => {
     it.each(circleList)(
-      "check diameter, area, circumference",
-      ({ center, radius, area, circumference }) => {
+      "check diameter, area, perimeter",
+      ({ center, radius, area, perimeter }) => {
         const c = new Circle2d(new Point2d(center[0], center[1]), radius);
 
         expect(c.diameter).toEqual(radius * 2);
         expect(c.area).toEqual(area);
-        expect(c.circumference).toEqual(circumference);
+        expect(c.perimeter).toEqual(perimeter);
       },
     );
   });
@@ -75,6 +75,25 @@ describe("Circle2d", () => {
         const p = new Point2d(check[0], check[1]);
 
         expect(c.isOnEdge(p)).toEqual(inside);
+      },
+    );
+  });
+
+  describe("contains", () => {
+    const pointList = [
+      { center: [0, 0], radius: 5, check: [0, 5], inside: true },
+      { center: [0, 0], radius: 5, check: [3, 3], inside: true },
+      { center: [1, 1], radius: 5, check: [6, 1], inside: true },
+      { center: [1, 1], radius: 5, check: [7, 7], inside: false },
+    ];
+
+    it.each(pointList)(
+      "check if a point is contained inside a circle",
+      ({ center, radius, check, inside }) => {
+        const c = new Circle2d(new Point2d(center[0], center[1]), radius);
+        const p = new Point2d(check[0], check[1]);
+
+        expect(c.contains(p)).toEqual(inside);
       },
     );
   });
@@ -130,8 +149,11 @@ describe("Circle2d", () => {
         [2, 6],
         [-4, 8],
       ],
-      intersect: false,
-      intersectAt: [],
+      intersect: true,
+      intersectAt: [
+        [2, 4.58],
+        [-3, 4],
+      ],
     },
   ];
 
@@ -199,52 +221,55 @@ describe("Circle2d", () => {
 
         var points = c.getIntersectionPoints(l);
 
+        expect(points.length).toEqual(intersectAt.length);
+
         expect(
           points.length > 0 &&
-            intersectAt.length === points.length &&
             points.every((p, i) => {
               return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
             }),
-        ).toBe(intersect);
+        ).toEqual(intersect);
       },
     );
 
     it.each(intersectPolygonList)(
-      "get intersection points with a polygon",
+      "get intersection points for $center / $radius with a polygon $polygon",
       ({ center, radius, polygon, intersect, intersectAt }) => {
         const c = new Circle2d(new Point2d(center[0], center[1]), radius);
 
-        const verticices = polygon.map((p) => new Point2d(p[0], p[1]));
+        const vertices = polygon.map((p) => new Point2d(p[0], p[1]));
 
-        const p = new Polygon2d(verticices);
+        const p = new Polygon2d(vertices);
 
         var points = c.getIntersectionPoints(p);
 
+        expect(points.length).toEqual(intersectAt.length);
+
         expect(
           points.length > 0 &&
-            intersectAt.length === points.length &&
             points.every((p, i) => {
               return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
             }),
-        ).toBe(intersect);
+        ).toEqual(intersect);
       },
     );
 
     it.each(intersectCircleList)(
-      "get intersection points with a line",
+      "get intersection points with a circle",
       ({ center, radius, circle, intersect, intersectAt }) => {
         const c1 = new Circle2d(new Point2d(center[0], center[1]), radius);
         const c2 = new Circle2d(new Point2d(circle[0], circle[1]), circle[2]);
 
         var points = c1.getIntersectionPoints(c2);
 
+        expect(points.length).toEqual(intersectAt.length);
+
         expect(
           points.length > 0 &&
-            intersectAt.length === points.length &&
             points.every((p, i) => {
               return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
             }),
-        ).toBe(intersect);
+        ).toEqual(intersect);
       },
     );
   });
