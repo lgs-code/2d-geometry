@@ -28,7 +28,8 @@
     "clean": "rimraf build && rimraf dist",
     "build:dev": "npm run clean && tsc && rollup -c && rimraf dist/build",
     "build:prod": "npm run clean && tsc -p tsconfig.prod.json && rollup -c --environment BUILD:production && rimraf dist/build",
-    "test": "npm run build:dev & jest"
+    "test:dev": "npm run build:dev & jest",
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.22.15",
