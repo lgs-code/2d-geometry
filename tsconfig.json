@@ -21,6 +21,7 @@
     "entryPoints": [
       "src/index.ts"
     ],
-    "out": "docs"
+    "out": "docs",
+    "readme": "none"
   }
 }
