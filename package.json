@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/lgs-code/2d-geometry#readme",
   "scripts": {
+    "documentation": "typedoc",
     "clean": "rimraf build && rimraf dist",
     "build:dev": "npm run clean && tsc && rollup -c && rimraf dist/build",
     "build:prod": "npm run clean && tsc -p tsconfig.prod.json && rollup -c --environment BUILD:production && rimraf dist/build",
@@ -50,6 +51,7 @@
     "rollup": "^4.5.1",
     "rollup-plugin-dts": "^6.1.0",
     "ts-jest": "^29.1.1",
+    "typedoc": "^0.25.3",
     "typescript": "^5.2.2"
   }
 }

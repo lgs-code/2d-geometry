@@ -16,5 +16,11 @@
   "include": [
     "src/index.ts",
     "jest.config.js"
-  ]
+  ],
+  "typedocOptions": {
+    "entryPoints": [
+      "src/index.ts"
+    ],
+    "out": "docs"
+  }
 }

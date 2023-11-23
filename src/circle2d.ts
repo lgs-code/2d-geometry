@@ -10,6 +10,9 @@ import { Polygon2d } from "./polygon2d";
  */
 export class Circle2d {
   private _center: Point2d;
+  /**
+   * Gets or sets the radius.
+   */
   public radius: number;
 
   constructor(center: Point2d, radius: number) {

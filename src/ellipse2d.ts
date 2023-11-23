@@ -11,7 +11,13 @@ import { Polynomial } from "./polynomial";
  */
 export class Ellipse2d {
   private _center: Point2d;
+  /**
+   * Gets or sets the width of the ellipse.
+   */
   public width: number;
+  /**
+   * Gets or sets the height of the ellipse.
+   */
   public height: number;
 
   constructor(center: Point2d, width: number, height: number) {
