@@ -1,8 +1,11 @@
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
+import terser from '@rollup/plugin-terser';
 import dts from 'rollup-plugin-dts';
-import pkg from "./package.json";
+import pkg from "./package.json" assert { type: 'json' };
+
+const production = process.env.BUILD === 'production';
 
 export default [
   // browser-friendly UMD build
@@ -12,13 +15,13 @@ export default [
       name:"2d-geometry",
       file: pkg.browser,
       format: "umd",
-      sourcemap: true,
+      sourcemap: !production,
       sourcemapExcludeSources: true
     },
     plugins: [
       resolve(),
       commonjs(),
-      typescript({ tsconfig: "./tsconfig.json" }),
+      typescript({ tsconfig: production ? "./tsconfig.prod.json" : "./tsconfig.json" }),
     ],
   },
 
@@ -34,22 +37,25 @@ export default [
       { 
         file: pkg.main, 
         format: "cjs", 
-        sourcemap: true,
+        sourcemap: !production,
         sourcemapExcludeSources: true
       },
       { 
         file: pkg.module, 
         format: "es", 
-        sourcemap: true,
+        sourcemap: !production,
         sourcemapExcludeSources: true
       },
     ],
-    plugins: [typescript({ tsconfig: "./tsconfig.json" })],
+    plugins: [
+      production && terser(), 
+      typescript({ tsconfig: production ? "./tsconfig.prod.json" : "./tsconfig.json" })
+    ],
   },
 
   {
     input: 'build/index.d.ts',
     output: [{ file: pkg.main.replace(".js", ".d.ts"), format: 'cjs' }],
-    plugins: [dts.default()],
+    plugins: [dts()],
   },
 ];

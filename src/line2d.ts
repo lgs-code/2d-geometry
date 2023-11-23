@@ -258,7 +258,6 @@ export class Line2d {
     clockwise: boolean = false,
   ): Line2d {
     const p1 = this.p1;
-    const p2 = this.p2;
 
     if (!this.isOnLine(p3)) {
       return null!;

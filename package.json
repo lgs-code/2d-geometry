@@ -25,14 +25,17 @@
   "homepage": "https://github.com/lgs-code/2d-geometry#readme",
   "scripts": {
     "clean": "rimraf build && rimraf dist",
-    "build": "npm run clean && tsc && rollup -c rollup.config.js --bundleConfigAsCjs && rimraf dist/build",
-    "test": "npm run build & jest"
+    "build:dev": "npm run clean && tsc && rollup -c && rimraf dist/build",
+    "build:prod": "npm run clean && tsc -p tsconfig.prod.json && rollup -c --environment BUILD:production && rimraf dist/build",
+    "test": "npm run build:dev & jest"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.22.15",
     "@babel/preset-typescript": "^7.22.15",
+    "@rollup/plugin-alias": "^5.0.1",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
     "@types/jest": "^29.5.4",
     "babel-jest": "^29.6.4",

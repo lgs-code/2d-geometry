@@ -1,4 +1,3 @@
-import { log } from "console";
 import { Point2d } from "./point2d";
 import { Line2d } from "./line2d";
 import { Polygon2d } from "./polygon2d";
@@ -77,11 +76,6 @@ export class Triangle2d extends Polygon2d {
       length,
     );
 
-    const ortho3 = this.edges[2].getOrthogonalLineFrom(
-      this.edges[2].centroid,
-      length,
-    );
-
     // NOTE: intersection between ortho2 and ortho3 should be the same point
     return ortho1.getIntersectionWithLine(ortho2);
   }
@@ -99,7 +93,6 @@ export class Triangle2d extends Polygon2d {
   get orthoCenter(): Point2d {
     var ortho1 = this.edges[1].getOrthogonalLineThrough(this.edges[0].p1);
     var ortho2 = this.edges[2].getOrthogonalLineThrough(this.edges[1].p1);
-    var ortho3 = this.edges[0].getOrthogonalLineThrough(this.edges[1].p2);
 
     // NOTE: intersection between ortho2 and ortho3 should be the same point
     return ortho1.getIntersectionWithLine(ortho2);

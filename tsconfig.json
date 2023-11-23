@@ -10,7 +10,7 @@
       "es2017"
     ],
     "declaration": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "outDir": "build",
   },
   "include": [
