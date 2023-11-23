@@ -261,7 +261,7 @@ export class Line2d {
     const p2 = this.p2;
 
     if (!this.isOnLine(p3)) {
-      return null;
+      return null!;
     }
 
     let p4 = new Point2d();
@@ -407,7 +407,7 @@ export class Line2d {
    */
   getIntersectionWithLine(line: Line2d): Point2d {
     if (this.isParallelTo(line)) {
-      return null;
+      return null!;
     }
 
     const denom = this.getDenominator(line);
@@ -432,7 +432,7 @@ export class Line2d {
       this.isOnSegment(theoricalPoint) &&
       line.isOnSegment(theoricalPoint)
       ? theoricalPoint
-      : null;
+      : null!;
   }
 
   /**

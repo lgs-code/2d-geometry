@@ -1,4 +1,4 @@
-import { Point2d, Vector2d } from "../dist/index";
+import { Point2d, Vector2d } from "../dist/2d-geometry";
 
 describe("Point2d", () => {
   const pointList = [

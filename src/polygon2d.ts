@@ -326,7 +326,7 @@ export class Polygon2d {
   getIntersectionPoints(
     item: Line2d | Polygon2d | Circle2d | Ellipse2d,
   ): Point2d[] {
-    var points = [];
+    let points: Point2d[] = [];
 
     if (item instanceof Line2d) {
       this.edges.forEach((edge) => {

@@ -6,7 +6,7 @@ import {
   Polygon2d,
   Line2d,
   Vector2d,
-} from "../dist/index";
+} from "../dist/2d-geometry";
 
 describe("Circle2d", () => {
   const circleList = [

@@ -1,0 +1,55 @@
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import typescript from "@rollup/plugin-typescript";
+import dts from 'rollup-plugin-dts';
+import pkg from "./package.json";
+
+export default [
+  // browser-friendly UMD build
+  {
+    input: "build/index.js",
+    output: {
+      name:"2d-geometry",
+      file: pkg.browser,
+      format: "umd",
+      sourcemap: true,
+      sourcemapExcludeSources: true
+    },
+    plugins: [
+      resolve(),
+      commonjs(),
+      typescript({ tsconfig: "./tsconfig.json" }),
+    ],
+  },
+
+  // CommonJS (for Node) and ES module (for bundlers) build.
+  // (We could have three entries in the configuration array
+  // instead of two, but it's quicker to generate multiple
+  // builds from a single configuration where possible, using
+  // an array for the `output` option, where we can specify
+  // `file` and `format` for each target)
+  {
+    input: "build/index.js",
+    output: [
+      { 
+        file: pkg.main, 
+        format: "cjs", 
+        sourcemap: true,
+        sourcemapExcludeSources: true
+      },
+      { 
+        file: pkg.module, 
+        format: "es", 
+        sourcemap: true,
+        sourcemapExcludeSources: true
+      },
+    ],
+    plugins: [typescript({ tsconfig: "./tsconfig.json" })],
+  },
+
+  {
+    input: 'build/index.d.ts',
+    output: [{ file: pkg.main.replace(".js", ".d.ts"), format: 'cjs' }],
+    plugins: [dts.default()],
+  },
+];

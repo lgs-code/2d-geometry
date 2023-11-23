@@ -132,6 +132,8 @@ export class Triangle2d extends Polygon2d {
         return [new Line2d(line1.p2, line1.p1), new Line2d(line2.p2, line2.p1)];
       }
     }
+
+    return [];
   }
 
   /**

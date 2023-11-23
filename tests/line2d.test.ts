@@ -1,5 +1,5 @@
 import { log } from "console";
-import { Line2d, Point2d, Rect2d, Vector2d } from "../dist/index";
+import { Line2d, Point2d, Rect2d, Vector2d } from "../dist/2d-geometry";
 
 describe("Line2d", () => {
   const lineList = [
@@ -496,7 +496,7 @@ describe("Line2d", () => {
 
         const p = new Point2d(point[0], point[1]);
 
-        const result = l.getOrthogonalLineFrom(p, length, clockwise);
+        const result = l.getOrthogonalLineFrom(p, length, clockwise)!;
 
         expect(result).not.toBe(null);
         expect(result.p2.x).toBe(check[0]);
