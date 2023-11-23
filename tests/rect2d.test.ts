@@ -1,4 +1,4 @@
-import { Line2d, Point2d, Rect2d, Vector2d } from "../dist/2d-geometry";
+import { Line2d, Point2d, Rect2d, Vector2d } from "../build/index";
 
 describe("Rect2d", () => {
   const rectList = [

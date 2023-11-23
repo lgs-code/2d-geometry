@@ -6,7 +6,7 @@ import {
   Polygon2d,
   Line2d,
   Vector2d,
-} from "../dist/2d-geometry";
+} from "../build/index";
 
 describe("Ellipse2d", () => {
   const ellipseList = [

@@ -6,8 +6,8 @@ module.exports = {
     },
     collectCoverage: true,
     collectCoverageFrom:[
-      './dist/*.js', 
-      '!./dist/index.js',
+      './build/*.js', 
+      '!./build/index.js',
       '!**/node_modules/**'
     ],
     coverageDirectory: "./dist/coverage",

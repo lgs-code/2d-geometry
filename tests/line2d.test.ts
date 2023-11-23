@@ -1,5 +1,5 @@
 import { log } from "console";
-import { Line2d, Point2d, Rect2d, Vector2d } from "../dist/2d-geometry";
+import { Line2d, Point2d, Rect2d, Vector2d } from "../build/index";
 
 describe("Line2d", () => {
   const lineList = [

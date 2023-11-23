@@ -1,4 +1,4 @@
-import { Vector2d } from "../dist/2d-geometry";
+import { Vector2d } from "../build/index";
 
 describe("Vector2d", () => {
   const vectorList = [

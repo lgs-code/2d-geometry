@@ -1,5 +1,5 @@
 import { log } from "console";
-import { Point2d, Polygon2d, Line2d } from "../dist/2d-geometry";
+import { Point2d, Polygon2d, Line2d } from "../build/index";
 
 describe("Polygon2d", () => {
   const polygonList = [
