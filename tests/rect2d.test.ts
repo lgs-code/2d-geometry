@@ -1,4 +1,12 @@
-import { Line2d, Point2d, Rect2d, Vector2d } from "../build/index";
+import { log } from "console";
+import {
+  Line2d,
+  Point2d,
+  Rect2d,
+  Vector2d,
+  Circle2d,
+  Ellipse2d,
+} from "../build/index";
 
 describe("Rect2d", () => {
   const rectList = [
@@ -264,6 +272,32 @@ describe("Rect2d", () => {
     },
   ];
 
+  const intersectCircleList = [
+    {
+      center: [0, 0],
+      radius: 5,
+      rect: [0, 0, 5, 5],
+      intersect: true,
+      intersectAt: [
+        [5, 0],
+        [5, 0],
+      ],
+    },
+  ];
+
+  const intersectEllipseList = [
+    {
+      center: [0, 0],
+      axis: [5, 3],
+      rect: [0, 0, 5, 5],
+      intersect: true,
+      intersectAt: [
+        [2.5, 0],
+        [0, 1.5],
+      ],
+    },
+  ];
+
   describe("doesIntersect", () => {
     it.each(intersectLineList)(
       "check if a line intersects a rectangle",
@@ -301,6 +335,30 @@ describe("Rect2d", () => {
         expect(r1.doesIntersect(r2)).toEqual(intersect);
       },
     );
+
+    it.each(intersectCircleList)(
+      "check if a rectangle intersects a circle",
+      ({ center, radius, rect, intersect }) => {
+        const c = new Circle2d(new Point2d(center[0], center[1]), radius);
+        const r = new Rect2d(new Point2d(rect[0], rect[1]), rect[2], rect[3]);
+
+        expect(r.doesIntersect(c)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectEllipseList)(
+      "check if a rectangle intersects an ellipse",
+      ({ center, axis, rect, intersect }) => {
+        const e = new Ellipse2d(
+          new Point2d(center[0], center[1]),
+          axis[0],
+          axis[1],
+        );
+        const r = new Rect2d(new Point2d(rect[0], rect[1]), rect[2], rect[3]);
+
+        expect(r.doesIntersect(e)).toEqual(intersect);
+      },
+    );
   });
 
   describe("getIntersectionPoints", () => {
@@ -320,12 +378,14 @@ describe("Rect2d", () => {
 
         var points = r.getIntersectionPoints(l);
 
+        expect(points.length).toEqual(intersectAt.length);
+
         expect(
           points.length > 0 &&
             points.every((p, i) => {
               return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
             }),
-        ).toBe(intersect);
+        ).toEqual(intersect);
       },
     );
 
@@ -346,12 +406,14 @@ describe("Rect2d", () => {
 
         var points = r1.getIntersectionPoints(r2);
 
+        expect(points.length).toEqual(intersectAt.length);
+
         expect(
           points.length > 0 &&
             points.every((p, i) => {
               return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
             }),
-        ).toBe(intersect);
+        ).toEqual(intersect);
       },
     );
   });

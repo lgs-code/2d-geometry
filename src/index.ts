@@ -8,6 +8,7 @@ import { Rect2d } from "./rect2d";
 import { Square2d } from "./square2d";
 import { Circle2d } from "./circle2d";
 import { Ellipse2d } from "./ellipse2d";
+import { Intersection2d } from "./intersection2d";
 
 export {
   Point2d,
@@ -20,4 +21,5 @@ export {
   Square2d,
   Ellipse2d,
   Circle2d,
+  Intersection2d,
 };

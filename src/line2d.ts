@@ -1,13 +1,12 @@
 import { Point2d } from "./point2d";
-import { Polygon2d } from "./polygon2d";
-import { Circle2d } from "./circle2d";
-import { Ellipse2d } from "./ellipse2d";
 import { Vector2d } from "./vector2d";
+import { IShape2d } from "./ishape2d";
+import { Intersection2d } from "./intersection2d";
 
 /**
  * Defines a line in two-dimensional coordinates.
  */
-export class Line2d {
+export class Line2d implements IShape2d {
   private _p1: Point2d;
   private _p2: Point2d;
 
@@ -76,19 +75,6 @@ export class Line2d {
 
   clone(): Line2d {
     return new Line2d(this._p1.clone(), this._p2.clone());
-  }
-
-  /**
-   * Computes the distance of the given point to the line.
-   * @param point The reference point.
-   */
-  private distanceTo(point: Point2d): number {
-    return (
-      Math.abs(
-        (this.p2.x - this.p1.x) * (this.p1.y - point.y) -
-          (this.p1.x - point.x) * (this.p2.y - this.p1.y),
-      ) / Math.sqrt((this.p2.x - this.p1.x) ** 2 + (this.p2.y - this.p1.y) ** 2)
-    );
   }
 
   /**
@@ -329,7 +315,7 @@ export class Line2d {
    * @param threshold A value used as a threshold / range to check if the point is on the line.
    */
   isOnLine(point: Point2d, threshold: number = 0): boolean {
-    return Math.round(this.distanceTo(point)) <= threshold;
+    return Intersection2d.isPointOnLine(point, this, threshold);
   }
 
   /**
@@ -338,13 +324,7 @@ export class Line2d {
    * @param threshold A value used as a threshold / range to check if the point is on the line.
    */
   isOnSegment(point: Point2d, threshold: number = 0): boolean {
-    return (
-      this.isOnLine(point, threshold) &&
-      point.x >= Math.min(this.p1.x, this.p2.x) &&
-      point.x <= Math.max(this.p1.x, this.p2.x) &&
-      point.y >= Math.min(this.p1.y, this.p2.y) &&
-      point.y <= Math.max(this.p1.y, this.p2.y)
-    );
+    return Intersection2d.isPointOnSegment(point, this, threshold);
   }
 
   /**
@@ -353,124 +333,24 @@ export class Line2d {
    * @returns true both lines are parallel.
    */
   isParallelTo(line: Line2d): boolean {
-    return this.getDenominator(line) === 0;
+    return Intersection2d.areLinesParallel(this, line);
   }
 
   /**
-   * Checks if the given line intersect with the current line.
-   * @param line The reference line.
-   * @returns true if both intersect.
+   * Checks if the current line intersect with the given shape.
+   * @param shape The reference shape.
+   * @returns true it the two shapes intersect, otherwise false.
    */
-  doesIntersect(line: Line2d): boolean;
-  /**
-   * Checks if the given quadrilateral intersect with the current line.
-   * @param rect The reference quadrilateral.
-   * @returns true if both intersect.
-   */
-  doesIntersect(polygon: Polygon2d): boolean;
-  /**
-   * Checks if the given circle intersect with the current line.
-   * @param circle The reference circle.
-   * @returns true if both intersect.
-   */
-  doesIntersect(circle: Circle2d): boolean;
-  /**
-   * Checks if the given ellipse intersect with the current line.
-   * @param circle The reference ellipse.
-   * @returns true if both intersect.
-   */
-  doesIntersect(ellipse: Ellipse2d): boolean;
-  doesIntersect(item: Line2d | Polygon2d | Circle2d | Ellipse2d): boolean {
-    if (item instanceof Line2d) {
-      return this.getIntersectionWithSegment(item) !== null;
-    } else if (item instanceof Polygon2d) {
-      return item.doesIntersect(this);
-    } else if (item instanceof Circle2d) {
-      return item.doesIntersect(this);
-    } else {
-      // instanceof Ellipse2d
-      return item.doesIntersect(this);
-    }
-  }
-
-  private getDenominator(line: Line2d): number {
-    return (
-      (this.p1.x - this.p2.x) * (line.p1.y - line.p2.y) -
-      (this.p1.y - this.p2.y) * (line.p1.x - line.p2.x)
-    );
+  doesIntersect(shape: IShape2d): boolean {
+    return Intersection2d.getIntersections(this, shape).length > 0;
   }
 
   /**
-   * @see {@link https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection}
-   * @see {@link https://en.wikipedia.org/wiki/Intersection_(geometry)}
+   * Get the intersection points with the given shape.
+   * @param shape The reference shape.
+   * @returns An array of points if any intersection exist, otherwise an empty array.
    */
-  getIntersectionWithLine(line: Line2d): Point2d {
-    if (this.isParallelTo(line)) {
-      return null!;
-    }
-
-    const denom = this.getDenominator(line);
-    const deta = this.p1.x * this.p2.y - this.p1.y * this.p2.x;
-    const detb = line.p1.x * line.p2.y - line.p1.y * line.p2.x;
-
-    const px =
-      (deta * (line.p1.x - line.p2.x) - (this.p1.x - this.p2.x) * detb) / denom;
-
-    const py =
-      (deta * (line.p1.y - line.p2.y) - (this.p1.y - this.p2.y) * detb) / denom;
-
-    return new Point2d(
-      Number.parseFloat(px.toFixed(2)),
-      Number.parseFloat(py.toFixed(2)),
-    );
-  }
-
-  getIntersectionWithSegment(line: Line2d): Point2d {
-    const theoricalPoint = this.getIntersectionWithLine(line);
-    return theoricalPoint != null &&
-      this.isOnSegment(theoricalPoint) &&
-      line.isOnSegment(theoricalPoint)
-      ? theoricalPoint
-      : null!;
-  }
-
-  /**
-   * Gets the list of intersection points.
-   * @param line The reference line.
-   * @returns the intersection points, if any.
-   */
-  getIntersectionPoints(line: Line2d): Point2d[];
-  /**
-   * Gets the list of intersection points.
-   * @param polygon The reference polygon.
-   * @returns the intersection points, if any.
-   */
-  getIntersectionPoints(polygon: Polygon2d): Point2d[];
-  /**
-   * Gets the list of intersection points.
-   * @param circle The reference circle.
-   * @returns the intersection points, if any.
-   */
-  getIntersectionPoints(circle: Circle2d): Point2d[];
-  /**
-   * Gets the list of intersection points.
-   * @param ellipse The reference ellipse.
-   * @returns the intersection points, if any.
-   */
-  getIntersectionPoints(ellipse: Ellipse2d): Point2d[];
-  getIntersectionPoints(
-    item: Line2d | Polygon2d | Circle2d | Ellipse2d,
-  ): Point2d[] {
-    if (item instanceof Line2d) {
-      const p = this.getIntersectionWithSegment(item);
-      return p !== null ? [p] : [];
-    } else if (item instanceof Polygon2d) {
-      return item.getIntersectionPoints(this);
-    } else if (item instanceof Circle2d) {
-      return item.getIntersectionPoints(this);
-    } else {
-      // instanceof Ellipse2d
-      return item.getIntersectionPoints(this);
-    }
+  getIntersectionPoints(shape: IShape2d): Point2d[] {
+    return Intersection2d.getIntersections(this, shape);
   }
 }

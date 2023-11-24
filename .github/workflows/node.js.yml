@@ -16,7 +16,6 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
       - uses: actions/checkout@v3
@@ -27,4 +26,4 @@ jobs:
           cache: "npm"
       - run: npm ci
       - run: npm run build:dev --if-present
-      - run: npm test
+      - run: npm test:prod --if-present

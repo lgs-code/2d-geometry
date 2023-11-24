@@ -21,7 +21,7 @@ export default [
     plugins: [
       resolve(),
       commonjs(),
-      typescript({ tsconfig: production ? "./tsconfig.prod.json" : "./tsconfig.json" }),
+      typescript({ tsconfig: production ? "./tsconfig.prod.json" : "./tsconfig.json", sourceMap:!production }),
     ],
   },
 
@@ -49,7 +49,7 @@ export default [
     ],
     plugins: [
       production && terser(), 
-      typescript({ tsconfig: production ? "./tsconfig.prod.json" : "./tsconfig.json" })
+      typescript({ tsconfig: production ? "./tsconfig.prod.json" : "./tsconfig.json", sourceMap:!production })
     ],
   },
 

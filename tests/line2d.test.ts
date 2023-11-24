@@ -1,5 +1,12 @@
 import { log } from "console";
-import { Line2d, Point2d, Rect2d, Vector2d } from "../build/index";
+import {
+  Line2d,
+  Point2d,
+  Rect2d,
+  Vector2d,
+  Circle2d,
+  Ellipse2d,
+} from "../build/index";
 
 describe("Line2d", () => {
   const lineList = [
@@ -349,6 +356,30 @@ describe("Line2d", () => {
     );
   });
 
+  describe("isParallelTo", () => {
+    const parallelList = [
+      { line1: [0, 0, 0, 5], line2: [1, 0, 1, 5], parallel: true },
+      { line1: [0, 0, 5, 5], line2: [0, 5, 5, 0], parallel: false },
+    ];
+
+    it.each(parallelList)(
+      "check if two lines are parallel",
+      ({ line1, line2, parallel }) => {
+        const l1 = new Line2d(
+          new Point2d(line1[0], line1[1]),
+          new Point2d(line1[2], line1[3]),
+        );
+
+        const l2 = new Line2d(
+          new Point2d(line2[0], line2[1]),
+          new Point2d(line2[2], line2[3]),
+        );
+
+        expect(l1.isParallelTo(l2)).toEqual(parallel);
+      },
+    );
+  });
+
   describe("isOrthogonalTo", () => {
     const orthogonalList = [
       { line1: [0, 0, 0, 5], line2: [-1, 2, 6, 2], orthogonal: true },
@@ -486,6 +517,14 @@ describe("Line2d", () => {
       },
     ];
 
+    it("cannot have an orthogonal line when point is not on edge", () => {
+      const l = new Line2d(new Point2d(0, 0), new Point2d(0, 5));
+
+      const p = new Point2d(2, 2);
+
+      expect(l.getOrthogonalLineFrom(p)).toBe(null);
+    });
+
     it.each(orhoList)(
       "get the orthogonal line, clockwise $clockwise, from $line starting at a $point, expecting $check",
       ({ line, point, length, check, clockwise }) => {
@@ -499,8 +538,8 @@ describe("Line2d", () => {
         const result = l.getOrthogonalLineFrom(p, length, clockwise)!;
 
         expect(result).not.toBe(null);
-        expect(result.p2.x).toBe(check[0]);
-        expect(result.p2.y).toBe(check[1]);
+        expect(result.p2.x).toEqual(check[0]);
+        expect(result.p2.y).toEqual(check[1]);
       },
     );
   });
@@ -553,9 +592,60 @@ describe("Line2d", () => {
     },
   ];
 
+  const intersectCircleList = [
+    {
+      center: [0, 0],
+      radius: 5,
+      line: [-2, 0, 6, 0],
+      intersect: true,
+      intersectAt: [[5, 0]],
+    },
+    {
+      center: [0, 0],
+      radius: 5,
+      line: [5, -2, 5, 10],
+      intersect: true,
+      intersectAt: [[5, 0]],
+    },
+    {
+      center: [0, 0],
+      radius: 5,
+      line: [10, 3, 12, 15],
+      intersect: false,
+      intersectAt: [],
+    },
+  ];
+
+  const intersectEllipseList = [
+    {
+      center: [0, 0],
+      axis: [5, 3],
+      line: [-5, 0, 0, 0],
+      intersect: true,
+      intersectAt: [[-2.5, 0]],
+    },
+    {
+      center: [0, 0],
+      axis: [5, 3],
+      line: [0, -3, 0, 3],
+      intersect: true,
+      intersectAt: [
+        [0, -1.5],
+        [0, 1.5],
+      ],
+    },
+    {
+      center: [0, 0],
+      axis: [5, 3],
+      line: [-5, 0, 0, 5],
+      intersect: false,
+      intersectAt: [],
+    },
+  ];
+
   describe("doesIntersect", () => {
     it.each(intersectLineList)(
-      "check if two lines intersect",
+      "check if two lines intersect $line1 / $line2, expecting $intersect",
       ({ line1, line2, intersect }) => {
         const l1 = new Line2d(
           new Point2d(line1[0], line1[1]),
@@ -588,6 +678,38 @@ describe("Line2d", () => {
         expect(l1.doesIntersect(rect1)).toEqual(intersect);
       },
     );
+
+    it.each(intersectCircleList)(
+      "check if a line intersects with a circle",
+      ({ center, radius, line, intersect }) => {
+        const l = new Line2d(
+          new Point2d(line[0], line[1]),
+          new Point2d(line[2], line[3]),
+        );
+
+        const c = new Circle2d(new Point2d(center[0], center[1]), radius);
+
+        expect(l.doesIntersect(c)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectEllipseList)(
+      "check if a line intersects with an ellipse",
+      ({ center, axis, line, intersect }) => {
+        const e = new Ellipse2d(
+          new Point2d(center[0], center[1]),
+          axis[0],
+          axis[1],
+        );
+
+        const l = new Line2d(
+          new Point2d(line[0], line[1]),
+          new Point2d(line[2], line[3]),
+        );
+
+        expect(l.doesIntersect(e)).toEqual(intersect);
+      },
+    );
   });
 
   describe("getIntersectionPoints", () => {
@@ -606,12 +728,14 @@ describe("Line2d", () => {
 
         var points = l1.getIntersectionPoints(l2);
 
+        expect(points.length).toEqual(intersectAt.length);
+
         expect(
           points.length > 0 &&
             points.every((p, i) => {
               return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
             }),
-        ).toBe(intersect);
+        ).toEqual(intersect);
       },
     );
   });

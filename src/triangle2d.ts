@@ -1,6 +1,7 @@
 import { Point2d } from "./point2d";
 import { Line2d } from "./line2d";
 import { Polygon2d } from "./polygon2d";
+import { Intersection2d } from "./intersection2d";
 
 /**
  * Defines a triangle in two-dimensional coordinates.
@@ -77,7 +78,7 @@ export class Triangle2d extends Polygon2d {
     );
 
     // NOTE: intersection between ortho2 and ortho3 should be the same point
-    return ortho1.getIntersectionWithLine(ortho2);
+    return Intersection2d.getLineLineIntersection(ortho1, ortho2);
   }
 
   /**
@@ -91,11 +92,11 @@ export class Triangle2d extends Polygon2d {
    * The intersection of the altitudes is the orthocenter.
    */
   get orthoCenter(): Point2d {
-    var ortho1 = this.edges[1].getOrthogonalLineThrough(this.edges[0].p1);
-    var ortho2 = this.edges[2].getOrthogonalLineThrough(this.edges[1].p1);
+    const ortho1 = this.edges[1].getOrthogonalLineThrough(this.edges[0].p1);
+    const ortho2 = this.edges[2].getOrthogonalLineThrough(this.edges[1].p1);
 
     // NOTE: intersection between ortho2 and ortho3 should be the same point
-    return ortho1.getIntersectionWithLine(ortho2);
+    return Intersection2d.getLineLineIntersection(ortho1, ortho2);
   }
 
   /**
