@@ -100,6 +100,54 @@ describe("Ellipse2d", () => {
     );
   });
 
+  describe("rotate", () => {
+    const rotationList = [
+      {
+        center: [0, 0],
+        axis: [5, 3],
+        origin: [0, 0],
+        angle: 0,
+        result: [0, 0],
+      },
+      {
+        center: [0, 0],
+        axis: [5, 3],
+        origin: [0, 0],
+        angle: 360,
+        result: [0, 0],
+      },
+      {
+        center: [5, 5],
+        axis: [5, 3],
+        origin: [0, 0],
+        angle: 90,
+        result: [-5, 5],
+      },
+    ];
+
+    it.each(rotationList)(
+      "rotates an ellipse around another point",
+      ({ center, axis, origin, angle, result }) => {
+        const e = new Ellipse2d(
+          new Point2d(center[0], center[1]),
+          axis[0],
+          axis[1],
+        );
+
+        const rp = new Point2d(origin[0], origin[1]);
+
+        if (origin.every((v, i) => v === 0)) {
+          e.rotate(angle);
+        } else {
+          e.rotate(angle, rp);
+        }
+
+        expect(e.center.x).toEqual(result[0]);
+        expect(e.center.y).toEqual(result[1]);
+      },
+    );
+  });
+
   describe("isOnEdge", () => {
     const pointList = [
       { center: [0, 0], axis: [5, 3], check: [0, 1.5], inside: true },

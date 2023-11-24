@@ -8,6 +8,7 @@ module.exports = {
     collectCoverageFrom:[
       './build/*.js', 
       '!./build/index.js',
+      '!./build/polynomial.js',
       '!**/node_modules/**'
     ],
     coverageDirectory: "./dist/coverage",

@@ -10,16 +10,17 @@ export class Quadiralteral2d extends Polygon2d {
   constructor(vertices: Point2d[]);
   constructor(edges: Line2d[]);
   constructor(item: Point2d[] | Line2d[]) {
-    /* istanbul ignore next */
-    if (item.length != 4) {
-      throw new Error("Expected number of vertices is 4");
-    }
-
-    /* istanbul ignore next */
     if (item[0] instanceof Point2d) {
+      /* istanbul ignore next */
+      if (item.length != 4) {
+        throw new Error("Expected number of vertices is 4");
+      }
       super(item as Point2d[]);
     } else {
       /* istanbul ignore next */
+      if (item.length != 4) {
+        throw new Error("Expected number of edges is 4");
+      }
       super(item as Line2d[]);
     }
   }

@@ -223,13 +223,10 @@ export class Polygon2d implements IClosedShape2d {
    * @returns true if the point is inside the polygon.
    */
   contains(point: Point2d): boolean {
-    console.log(point);
     return this.triangulate().some((triangle: Point2d[]) => {
       const v1 = triangle[0];
       const v2 = triangle[1];
       const v3 = triangle[2];
-
-      console.log(triangle);
 
       const d1 =
         (point.x - v2.x) * (v1.y - v2.y) - (v1.x - v2.x) * (point.y - v2.y);
@@ -240,9 +237,6 @@ export class Polygon2d implements IClosedShape2d {
 
       const has_neg = d1 < 0 || d2 < 0 || d3 < 0;
       const has_pos = d1 > 0 || d2 > 0 || d3 > 0;
-
-      console.log(`${has_pos} ${has_neg}`);
-      console.log("    ");
 
       return !(has_neg && has_pos);
     });

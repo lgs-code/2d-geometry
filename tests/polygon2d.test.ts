@@ -63,6 +63,24 @@ describe("Polygon2d", () => {
     },
   ];
 
+  describe("ctor", () => {
+    it("creates a polygon with not enough points", () => {
+      expect(
+        () => new Polygon2d([new Point2d(0, 0), new Point2d(0, 5)]),
+      ).toThrowError("Minimum number of vertices is 3");
+    });
+
+    it("creates a polygon with not enough lines", () => {
+      expect(
+        () =>
+          new Polygon2d([
+            new Line2d(new Point2d(0, 0), new Point2d(0, 5)),
+            new Line2d(new Point2d(0, 5), new Point2d(5, 5)),
+          ]),
+      ).toThrowError("Minimum number of edges is 3");
+    });
+  });
+
   describe("props", () => {
     it.each(polygonList)(
       "check generic properties",
@@ -112,7 +130,6 @@ describe("Polygon2d", () => {
 
   describe("contains", () => {
     const containsList = [
-      /*
       {
         vertices: [
           [0, 0],
@@ -135,7 +152,6 @@ describe("Polygon2d", () => {
         point: [4, 1],
         contains: true,
       },
-      */
       {
         vertices: [
           [0, 0],

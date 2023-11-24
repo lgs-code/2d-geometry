@@ -27,7 +27,20 @@
     "rules": {
         "prettier/prettier": "error",
         "jsdoc/require-description": 2,
-        "no-var": 0
+        "no-var": 0,
+        "no-console": [
+            "warn",
+            {
+                "allow": [
+                    "clear",
+                    "info",
+                    "error",
+                    "dir",
+                    "trace",
+                    "log"
+                ]
+            }
+        ]
     },
     "ignorePatterns": [
         "src/**/*.test.ts"

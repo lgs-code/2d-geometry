@@ -61,6 +61,50 @@ describe("Circle2d", () => {
     );
   });
 
+  describe("rotate", () => {
+    const rotationList = [
+      {
+        center: [0, 0],
+        radius: 5,
+        origin: [0, 0],
+        angle: 0,
+        result: [0, 0],
+      },
+      {
+        center: [0, 0],
+        radius: 5,
+        origin: [0, 0],
+        angle: 360,
+        result: [0, 0],
+      },
+      {
+        center: [5, 5],
+        radius: 5,
+        origin: [0, 0],
+        angle: 90,
+        result: [-5, 5],
+      },
+    ];
+
+    it.each(rotationList)(
+      "rotates a circle around another point",
+      ({ center, radius, origin, angle, result }) => {
+        const c = new Circle2d(new Point2d(center[0], center[1]), radius);
+
+        const rp = new Point2d(origin[0], origin[1]);
+
+        if (origin.every((v, i) => v === 0)) {
+          c.rotate(angle);
+        } else {
+          c.rotate(angle, rp);
+        }
+
+        expect(c.center.x).toEqual(result[0]);
+        expect(c.center.y).toEqual(result[1]);
+      },
+    );
+  });
+
   describe("isOnEdge", () => {
     const pointList = [
       { center: [0, 0], radius: 5, check: [0, 5], inside: true },

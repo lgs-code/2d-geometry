@@ -1,4 +1,4 @@
-import { Line2d, Point2d, Square2d, Vector2d } from "../build/index";
+import { Line2d, Point2d, Square2d, Quadiralteral2d } from "../build/index";
 
 describe("Square2d", () => {
   const squareList = [
@@ -30,6 +30,22 @@ describe("Square2d", () => {
         expect(r.height).toEqual(width);
       },
     );
+
+    it("creates a square with wrong number of points", () => {
+      expect(
+        () => new Quadiralteral2d([new Point2d(0, 0), new Point2d(0, 5)]),
+      ).toThrowError("Expected number of vertices is 4");
+    });
+
+    it("creates a square with wrong number of lines", () => {
+      expect(
+        () =>
+          new Quadiralteral2d([
+            new Line2d(new Point2d(0, 0), new Point2d(0, 5)),
+            new Line2d(new Point2d(0, 5), new Point2d(5, 5)),
+          ]),
+      ).toThrowError("Expected number of edges is 4");
+    });
   });
 
   describe("props", () => {

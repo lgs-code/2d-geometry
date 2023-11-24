@@ -68,6 +68,22 @@ describe("Triangle2d", () => {
 
       expect(t).not.toBe(null);
     });
+
+    it("creates a triangle with wrong number of points", () => {
+      expect(
+        () => new Triangle2d([new Point2d(0, 0), new Point2d(0, 5)]),
+      ).toThrowError("Expected number of vertices is 3");
+    });
+
+    it("creates a triangle with wrong number of lines", () => {
+      expect(
+        () =>
+          new Triangle2d([
+            new Line2d(new Point2d(0, 0), new Point2d(0, 5)),
+            new Line2d(new Point2d(0, 5), new Point2d(5, 5)),
+          ]),
+      ).toThrowError("Expected number of edges is 3");
+    });
   });
 
   describe("props", () => {
