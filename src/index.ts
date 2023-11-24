@@ -1,5 +1,6 @@
 import { Point2d } from "./point2d";
 import { Vector2d } from "./vector2d";
+import { IShape2d, IClosedShape2d } from "./ishape2d";
 import { Line2d } from "./line2d";
 import { Polygon2d } from "./polygon2d";
 import { Quadiralteral2d } from "./quadrilateral2d";
@@ -13,6 +14,8 @@ import { Intersection2d } from "./intersection2d";
 export {
   Point2d,
   Vector2d,
+  IShape2d,
+  IClosedShape2d,
   Line2d,
   Polygon2d,
   Quadiralteral2d,

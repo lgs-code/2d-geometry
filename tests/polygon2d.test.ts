@@ -109,4 +109,73 @@ describe("Polygon2d", () => {
       },
     );
   });
+
+  describe("contains", () => {
+    const containsList = [
+      /*
+      {
+        vertices: [
+          [0, 0],
+          [5, 0],
+          [5, 5],
+          [0, 5],
+        ],
+        triangles: [
+          [
+            [5, 0],
+            [5, 5],
+            [0, 5],
+          ],
+          [
+            [5, 0],
+            [0, 5],
+            [0, 0],
+          ],
+        ],
+        point: [4, 1],
+        contains: true,
+      },
+      */
+      {
+        vertices: [
+          [0, 0],
+          [5, 0],
+          [6, 5],
+          [-4, 7],
+          [2, 3],
+        ],
+        triangles: [
+          [
+            [2, 3],
+            [0, 0],
+            [5, 0],
+          ],
+          [
+            [2, 3],
+            [5, 0],
+            [6, 5],
+          ],
+          [
+            [2, 3],
+            [6, 5],
+            [-4, 7],
+          ],
+        ],
+        point: [-20, -20],
+        contains: false,
+      },
+    ];
+
+    it.each(containsList)(
+      "check if a point is inside a polygon",
+      ({ vertices, point, contains }) => {
+        const p = new Polygon2d(
+          vertices.map((point) => new Point2d(point[0], point[1])),
+        );
+        const pt = new Point2d(point[0], point[1]);
+
+        expect(p.contains(pt)).toEqual(contains);
+      },
+    );
+  });
 });

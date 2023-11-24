@@ -410,7 +410,7 @@ describe("Line2d", () => {
     );
   });
 
-  describe("isOnSegment", () => {
+  describe("isOnEdge", () => {
     const pointList = [
       { point1: [0, 0], point2: [5, 5], check: [2.5, 2.5], inside: true },
       { point1: [7, 9], point2: [-3, 19], check: [3, 3], inside: false },
@@ -426,7 +426,7 @@ describe("Line2d", () => {
 
         const p = new Point2d(check[0], check[1]);
 
-        expect(l.isOnSegment(p)).toEqual(inside);
+        expect(l.isOnEdge(p)).toEqual(inside);
       },
     );
   });

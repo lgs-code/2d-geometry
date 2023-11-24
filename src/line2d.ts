@@ -323,7 +323,7 @@ export class Line2d implements IShape2d {
    * @param point The reference point.
    * @param threshold A value used as a threshold / range to check if the point is on the line.
    */
-  isOnSegment(point: Point2d, threshold: number = 0): boolean {
+  isOnEdge(point: Point2d, threshold: number = 0): boolean {
     return Intersection2d.isPointOnSegment(point, this, threshold);
   }
 

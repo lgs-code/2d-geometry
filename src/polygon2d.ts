@@ -1,14 +1,14 @@
 import { Point2d } from "./point2d";
 import { Line2d } from "./line2d";
 import { Vector2d } from "./vector2d";
-import { IShape2d } from "./ishape2d";
+import { IShape2d, IClosedShape2d } from "./ishape2d";
 import { Intersection2d } from "./intersection2d";
 
 /**
  * Defines a polygon in two-dimensional coordinates.
  * @see {@link https://en.wikipedia.org/wiki/Polygon}
  */
-export class Polygon2d implements IShape2d {
+export class Polygon2d implements IClosedShape2d {
   protected _vertices: Point2d[];
   protected _edges: Line2d[];
 
@@ -213,7 +213,38 @@ export class Polygon2d implements IShape2d {
    */
   isOnEdge(point: Point2d, threshold: number = 0): boolean {
     return this.edges.some((edge) => {
-      return edge.isOnSegment(point, threshold);
+      return edge.isOnEdge(point, threshold);
+    });
+  }
+
+  /**
+   * Checks if the given point is located inside the polygon.
+   * @param point The reference point.
+   * @returns true if the point is inside the polygon.
+   */
+  contains(point: Point2d): boolean {
+    console.log(point);
+    return this.triangulate().some((triangle: Point2d[]) => {
+      const v1 = triangle[0];
+      const v2 = triangle[1];
+      const v3 = triangle[2];
+
+      console.log(triangle);
+
+      const d1 =
+        (point.x - v2.x) * (v1.y - v2.y) - (v1.x - v2.x) * (point.y - v2.y);
+      const d2 =
+        (point.x - v3.x) * (v2.y - v3.y) - (v2.x - v3.x) * (point.y - v3.y);
+      const d3 =
+        (point.x - v1.x) * (v3.y - v1.y) - (v3.x - v1.x) * (point.y - v1.y);
+
+      const has_neg = d1 < 0 || d2 < 0 || d3 < 0;
+      const has_pos = d1 > 0 || d2 > 0 || d3 > 0;
+
+      console.log(`${has_pos} ${has_neg}`);
+      console.log("    ");
+
+      return !(has_neg && has_pos);
     });
   }
 

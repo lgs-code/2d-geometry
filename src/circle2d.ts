@@ -1,13 +1,13 @@
 import { Point2d } from "./point2d";
 import { Vector2d } from "./vector2d";
-import { IShape2d } from "./ishape2d";
+import { IShape2d, IClosedShape2d } from "./ishape2d";
 import { Intersection2d } from "./intersection2d";
 
 /**
  * Defines a circle in two-dimensional coordinates.
  * @see {@link https://en.wikipedia.org/wiki/Circle}
  */
-export class Circle2d implements IShape2d {
+export class Circle2d implements IClosedShape2d {
   private _center: Point2d;
   /**
    * Gets or sets the radius.
@@ -53,6 +53,19 @@ export class Circle2d implements IShape2d {
    */
   translate(vector: Vector2d): void {
     this._center.translate(vector);
+  }
+
+  /**
+   * Rotates the circle by the given angle in degree, around a point.
+   * @param angle The rotation angle.
+   * @param origin The origin from which the rotation is supposed to be done.
+   */
+  rotate(angle: number, origin: Point2d = new Point2d()): void {
+    if (angle === 0 || angle === 360) {
+      return;
+    }
+
+    this._center.rotate(angle, origin);
   }
 
   /**
