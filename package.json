@@ -1,9 +1,11 @@
 {
-  "name": "2d-geometry",
-  "version": "0.0.1",
+  "name": "@lgs-code/2d-geometry",
+  "version": "1.0.0",
   "description": "TypeScript library for 2d geometry",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/2d-geometry.js",
+  "module": "dist/2d-geometry.mjs",
+  "browser": "dist/2d-geometry.umd",
+  "types": "dist/2d-geometry.d.ts",
   "files": [
     "/dist"
   ],
@@ -22,11 +24,21 @@
   },
   "homepage": "https://github.com/lgs-code/2d-geometry#readme",
   "scripts": {
-    "test": "tsc & jest"
+    "documentation": "typedoc",
+    "clean": "rimraf build && rimraf dist",
+    "build:dev": "npm run clean && tsc && rollup -c && rimraf dist/build",
+    "build:prod": "npm run clean && tsc -p tsconfig.prod.json && rollup -c --environment BUILD:production && rimraf dist/build",
+    "test:dev": "npm run build:dev & jest",
+    "test:prod": "jest"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.22.15",
     "@babel/preset-typescript": "^7.22.15",
+    "@rollup/plugin-alias": "^5.0.1",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.5",
     "@types/jest": "^29.5.4",
     "babel-jest": "^29.6.4",
     "eslint": "^8.2.0",
@@ -37,7 +49,10 @@
     "eslint-plugin-prettier": "^5.0.0",
     "jest": "^29.6.4",
     "prettier": "^3.0.3",
+    "rollup": "^4.5.1",
+    "rollup-plugin-dts": "^6.1.0",
     "ts-jest": "^29.1.1",
+    "typedoc": "^0.25.3",
     "typescript": "^5.2.2"
   }
 }

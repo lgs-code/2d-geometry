@@ -1,4 +1,4 @@
-import { Point2d, Vector2d } from "../dist/index";
+import { Point2d, Vector2d } from "../build/index";
 
 describe("Point2d", () => {
   const pointList = [
@@ -20,6 +20,19 @@ describe("Point2d", () => {
 
       expect(p.x).toEqual(x);
       expect(p.y).toEqual(y);
+    });
+  });
+
+  describe("clone", () => {
+    it.each(pointList)("clones a point", (x, y) => {
+      const p1 = new Point2d(x, y);
+
+      const p2 = p1.clone();
+
+      expect(p1.x).toEqual(p2.x);
+      expect(p1.y).toEqual(p2.y);
+      expect(p1 !== p2).toBe(true);
+      expect(p1 === p2).toBe(false);
     });
   });
 

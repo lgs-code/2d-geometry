@@ -1,18 +1,27 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "outDir": "./dist",
-    "target": "ES2015",
-    "module": "commonjs",
+    "target": "es2018",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "lib": [
+      "es2017"
+    ],
     "declaration": true,
     "sourceMap": true,
-    "lib": [
-      "ES2015",
-      "DOM"
-    ],
+    "outDir": "build",
   },
   "include": [
-    "src/**/*",
+    "src/index.ts",
     "jest.config.js"
-  ]
+  ],
+  "typedocOptions": {
+    "entryPoints": [
+      "src/index.ts"
+    ],
+    "out": "docs",
+    "readme": "none"
+  }
 }

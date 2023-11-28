@@ -2,12 +2,12 @@
  * Defines a vector in two-dimensional coordinates.
  */
 export class Vector2d {
-  vx: number;
-  vy: number;
+  x: number;
+  y: number;
 
-  constructor(vx: number = 0, vy: number = 0) {
-    this.vx = vx;
-    this.vy = vy;
+  constructor(x: number = 0, y: number = 0) {
+    this.x = x;
+    this.y = y;
   }
 
   /**
@@ -21,12 +21,12 @@ export class Vector2d {
     angle: number,
   ): Vector2d {
     let angleRad = (angle * Math.PI) / 180;
-    let vx = magnitude * Math.cos(angleRad);
-    let vy = magnitude * Math.sin(angleRad);
+    let x = magnitude * Math.cos(angleRad);
+    let y = magnitude * Math.sin(angleRad);
 
     return new Vector2d(
-      Number.parseFloat(vx.toFixed(2)),
-      Number.parseFloat(vy.toFixed(2)),
+      Number.parseFloat(x.toFixed(2)),
+      Number.parseFloat(y.toFixed(2)),
     );
   }
 
@@ -34,7 +34,7 @@ export class Vector2d {
    * Gets the magnitude, or length, of the vector.
    */
   get magnitude(): number {
-    return Number.parseFloat(Math.hypot(this.vx - 0, this.vy - 0).toFixed(2));
+    return Number.parseFloat(Math.hypot(this.x - 0, this.y - 0).toFixed(2));
   }
 
   /**
@@ -42,31 +42,31 @@ export class Vector2d {
    */
   get angle(): number {
     return Number.parseFloat(
-      (Math.atan(this.vy / this.vx) * (180 / Math.PI)).toFixed(2),
+      (Math.atan(this.y / this.x) * (180 / Math.PI)).toFixed(2),
     );
   }
 
   add(value: Vector2d): void {
-    this.vx += value.vx;
-    this.vy += value.vy;
+    this.x += value.x;
+    this.y += value.y;
   }
 
   substract(value: Vector2d): void {
-    this.vx -= value.vx;
-    this.vy -= value.vy;
+    this.x -= value.x;
+    this.y -= value.y;
   }
 
   multiply(scalar: number): void {
-    this.vx *= scalar;
-    this.vy *= scalar;
+    this.x *= scalar;
+    this.y *= scalar;
   }
 
   divide(scalar: number): void {
-    this.vx /= scalar;
-    this.vy /= scalar;
+    this.x /= scalar;
+    this.y /= scalar;
   }
 
   dot(value: Vector2d): number {
-    return this.vx * value.vx + this.vy * value.vy;
+    return this.x * value.x + this.y * value.y;
   }
 }

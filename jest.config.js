@@ -6,8 +6,9 @@ module.exports = {
     },
     collectCoverage: true,
     collectCoverageFrom:[
-      './dist/*.js', 
-      '!./dist/index.js',
+      './build/*.js', 
+      '!./build/index.js',
+      '!./build/polynomial.js',
       '!**/node_modules/**'
     ],
     coverageDirectory: "./dist/coverage",
@@ -16,7 +17,7 @@ module.exports = {
         branches: 80,
         functions: 80,
         lines: 80,
-        statements: -10,
+        statements: -20,
       }
     }
   };

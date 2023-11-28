@@ -1,4 +1,4 @@
-import { Vector2d } from "../dist/index";
+import { Vector2d } from "../build/index";
 
 describe("Vector2d", () => {
   const vectorList = [
@@ -11,15 +11,15 @@ describe("Vector2d", () => {
     it("creates a vector with no coordinates", () => {
       const v = new Vector2d();
 
-      expect(v.vx).toEqual(0);
-      expect(v.vy).toEqual(0);
+      expect(v.x).toEqual(0);
+      expect(v.y).toEqual(0);
     });
 
     it.each(vectorList)("creates a vector with proper coordinates", (x, y) => {
       const v = new Vector2d(x, y);
 
-      expect(v.vx).toEqual(x);
-      expect(v.vy).toEqual(y);
+      expect(v.x).toEqual(x);
+      expect(v.y).toEqual(y);
     });
   });
 
@@ -39,8 +39,8 @@ describe("Vector2d", () => {
         const v1 = new Vector2d(x, y);
         const v2 = Vector2d.fromPolarCoordinates(m, a);
 
-        expect(v1.vx).toEqual(v2.vx);
-        expect(v1.vy).toEqual(v2.vy);
+        expect(v1.x).toEqual(v2.x);
+        expect(v1.y).toEqual(v2.y);
       },
     );
   });
@@ -51,8 +51,8 @@ describe("Vector2d", () => {
 
       v.add(new Vector2d(x, y));
 
-      expect(v.vx).toEqual(x * 2);
-      expect(v.vy).toEqual(y * 2);
+      expect(v.x).toEqual(x * 2);
+      expect(v.y).toEqual(y * 2);
     });
   });
 
@@ -64,8 +64,8 @@ describe("Vector2d", () => {
 
         v.substract(new Vector2d(y, x));
 
-        expect(v.vx).toEqual(x - y);
-        expect(v.vy).toEqual(y - x);
+        expect(v.x).toEqual(x - y);
+        expect(v.y).toEqual(y - x);
       },
     );
   });
@@ -79,8 +79,8 @@ describe("Vector2d", () => {
 
         v.multiply(scalar);
 
-        expect(v.vx).toEqual(x * scalar);
-        expect(v.vy).toEqual(y * scalar);
+        expect(v.x).toEqual(x * scalar);
+        expect(v.y).toEqual(y * scalar);
       },
     );
   });
@@ -92,8 +92,8 @@ describe("Vector2d", () => {
 
       v.divide(scalar);
 
-      expect(v.vx).toEqual(x / scalar);
-      expect(v.vy).toEqual(y / scalar);
+      expect(v.x).toEqual(x / scalar);
+      expect(v.y).toEqual(y / scalar);
     });
   });
 
@@ -101,6 +101,17 @@ describe("Vector2d", () => {
     const dotList = [
       { vect1: [2, 3], vect2: [7, 2], dot: 20 },
       { vect1: [6, 1], vect2: [1, 1], dot: 7 },
+      // same direction, 45° angle
+      { vect1: [5, 0], vect2: [5, 5], dot: 25 },
+      // perpendicular, 90° angle
+      { vect1: [5, 0], vect2: [0, 5], dot: 0 },
+      { vect1: [5, 0], vect2: [0, -5], dot: 0 },
+      // opposite direction, 135° angle
+      { vect1: [5, 0], vect2: [-5, 5], dot: -25 },
+      // pretty close to each other
+      { vect1: [5, 0], vect2: [3, 0.5], dot: 15 },
+      // pretty nearly perpendicular
+      { vect1: [5, 0], vect2: [0.5, 5], dot: 2.5 },
     ];
 
     it.each(dotList)("computes dot product", ({ vect1, vect2, dot }) => {
