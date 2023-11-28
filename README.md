@@ -20,3 +20,7 @@ The tools used in this library are :
 - [Rollup](https://rollupjs.org/) => to create bundles in various format like UMD, Common Js and ES Modules
 - [Jest]() => writing and executing unit tests
 - [TypeDoc](https://typedoc.org/) => generating the documentation
+
+## Contribution
+
+Feel free to contribute by adding new features or color formats :)

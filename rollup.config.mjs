@@ -12,7 +12,7 @@ export default [
   {
     input: "build/index.js",
     output: {
-      name:"2d-geometry",
+      name: pkg.name.replace("@lgs-code/", ""),
       file: pkg.browser,
       format: "umd",
       sourcemap: !production,
