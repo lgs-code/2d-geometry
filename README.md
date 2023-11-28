@@ -8,7 +8,7 @@ This library is not intented to be used as-is, but more as a toolkit in your own
 
 ## Documentation
 
-For the list of of available classes and features, please review the documentation [here](docs/index.html).
+For the list of of available classes and features, please review the documentation [here](https://lgs-code.github.io/2d-geometry/).
 
 ## Tools
 
