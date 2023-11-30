@@ -117,6 +117,7 @@ describe("Polygon2d", () => {
         const p = new Polygon2d(vs);
 
         const ts = p.triangulate();
+
         expect(ts.length).toEqual(triangles.length);
         expect(
           ts.every(

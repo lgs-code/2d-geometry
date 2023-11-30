@@ -1,4 +1,5 @@
 import { log } from "console";
+import { pointsDoMatch } from "./test-utils";
 import {
   Circle2d,
   Point2d,
@@ -6,6 +7,8 @@ import {
   Polygon2d,
   Line2d,
   Vector2d,
+  Arc2d,
+  Sector2d,
 } from "../build/index";
 
 describe("Circle2d", () => {
@@ -228,6 +231,27 @@ describe("Circle2d", () => {
     },
   ];
 
+  const intersectArcList = [
+    {
+      circle: [2, 0, 4],
+      arc: [5, 0, 0, 5, 0, 0],
+      intersect: true,
+      intersectAt: [[3.25, 3.8]],
+    },
+  ];
+
+  const intersectSectorList = [
+    {
+      circle: [2, 0, 4],
+      sector: [5, 0, 0, 5, 0, 0],
+      intersect: true,
+      intersectAt: [
+        [3.25, 3.8],
+        [0, 3.46],
+      ],
+    },
+  ];
+
   describe("doesIntersect", () => {
     it.each(intersectLineList)(
       "check if a circle intersects with a line",
@@ -251,6 +275,32 @@ describe("Circle2d", () => {
         expect(c1.doesIntersect(c2)).toEqual(intersect);
       },
     );
+
+    it.each(intersectArcList)(
+      "check if a circle intersects with an arc",
+      ({ circle, arc, intersect }) => {
+        const c = new Circle2d(new Point2d(circle[0], circle[1]), circle[2]);
+        const a = new Arc2d(
+          new Point2d(arc[0], arc[1]),
+          new Point2d(arc[2], arc[3]),
+          new Point2d(arc[4], arc[5]),
+        );
+        expect(c.doesIntersect(a)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectArcList)(
+      "check if a circle intersects with a sector",
+      ({ circle, arc, intersect }) => {
+        const c = new Circle2d(new Point2d(circle[0], circle[1]), circle[2]);
+        const a = new Sector2d(
+          new Point2d(arc[0], arc[1]),
+          new Point2d(arc[2], arc[3]),
+          new Point2d(arc[4], arc[5]),
+        );
+        expect(c.doesIntersect(a)).toEqual(intersect);
+      },
+    );
   });
 
   describe("getIntersectionPoints", () => {
@@ -263,7 +313,7 @@ describe("Circle2d", () => {
           new Point2d(line[2], line[3]),
         );
 
-        var points = c.getIntersectionPoints(l);
+        const points = c.getIntersectionPoints(l);
 
         expect(points.length).toEqual(intersectAt.length);
 
@@ -285,16 +335,11 @@ describe("Circle2d", () => {
 
         const p = new Polygon2d(vertices);
 
-        var points = c.getIntersectionPoints(p);
+        const points = c.getIntersectionPoints(p);
 
         expect(points.length).toEqual(intersectAt.length);
 
-        expect(
-          points.length > 0 &&
-            points.every((p, i) => {
-              return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
-            }),
-        ).toEqual(intersect);
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
       },
     );
 
@@ -304,16 +349,47 @@ describe("Circle2d", () => {
         const c1 = new Circle2d(new Point2d(center[0], center[1]), radius);
         const c2 = new Circle2d(new Point2d(circle[0], circle[1]), circle[2]);
 
-        var points = c1.getIntersectionPoints(c2);
+        const points = c1.getIntersectionPoints(c2);
 
         expect(points.length).toEqual(intersectAt.length);
 
-        expect(
-          points.length > 0 &&
-            points.every((p, i) => {
-              return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
-            }),
-        ).toEqual(intersect);
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectArcList)(
+      "get intersection points with an arc",
+      ({ circle, arc, intersect, intersectAt }) => {
+        const c = new Circle2d(new Point2d(circle[0], circle[1]), circle[2]);
+        const a = new Arc2d(
+          new Point2d(arc[0], arc[1]),
+          new Point2d(arc[2], arc[3]),
+          new Point2d(arc[4], arc[5]),
+        );
+
+        const points = c.getIntersectionPoints(a);
+
+        expect(points.length).toEqual(intersectAt.length);
+
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectSectorList)(
+      "get intersection points with a sector",
+      ({ circle, sector, intersect, intersectAt }) => {
+        const c = new Circle2d(new Point2d(circle[0], circle[1]), circle[2]);
+        const s = new Sector2d(
+          new Point2d(sector[0], sector[1]),
+          new Point2d(sector[2], sector[3]),
+          new Point2d(sector[4], sector[5]),
+        );
+
+        const points = c.getIntersectionPoints(s);
+
+        expect(points.length).toEqual(intersectAt.length);
+
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
       },
     );
   });

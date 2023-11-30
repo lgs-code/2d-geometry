@@ -23,4 +23,4 @@ The tools used in this library are :
 
 ## Contribution
 
-Feel free to contribute by adding new features or color formats :)
+Feel free to contribute by adding new features or shapes :)

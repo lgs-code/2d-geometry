@@ -17,19 +17,79 @@ export class Line2d implements IShape2d {
 
   /**
    * Gets the length of the line starting at (x1,y1) and closing at (x2,y2).
-   * @param x1 x coordinate of start of the line.
-   * @param y1 y coordinate of start of the line.
-   * @param x2 x coordinate of end of the line.
-   * @param y2 y coordinate of end of the line.
+   * @param p1x x coordinate of start of the line.
+   * @param p1y y coordinate of start of the line.
+   * @param p2x x coordinate of end of the line.
+   * @param p2y y coordinate of end of the line.
    * @returns The length.
    */
   public static getLength(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
+    p1x: number,
+    p1y: number,
+    p2x: number,
+    p2y: number,
   ): number {
-    return Point2d.getDistance(x1, y1, x2, y2);
+    return Point2d.getDistance(p1x, p1y, p2x, p2y);
+  }
+
+  private static reorder(l1: Line2d, l2: Line2d): Line2d {
+    const ac = Line2d.getLength(l2.p1.x, l2.p1.y, l1.p1.x, l1.p1.y); // A->C
+    const ad = Line2d.getLength(l2.p1.x, l2.p1.y, l1.p2.x, l1.p2.y); // A->D
+    const bc = Line2d.getLength(l2.p2.x, l2.p2.y, l1.p1.x, l1.p1.y); // A->C
+    const bd = Line2d.getLength(l2.p2.x, l2.p2.y, l1.p2.x, l1.p2.y); // A->D
+
+    const min = Math.min(ac, ad, bc, bd);
+
+    switch (min) {
+      case bc:
+      case ad:
+        return new Line2d(l1.p2, l1.p1);
+
+      case ac:
+      case bd:
+      default:
+        return l1;
+    }
+  }
+
+  /**
+   * Gets the angle between two lines.
+   * @param p1x x-coordinate of the starting point of the first line.
+   * @param p1y y-coordinate of the starting point of the first line.
+   * @param p2x x-coordinate of the ending point of the first line.
+   * @param p2y y-coordinate of the ending point of the first line.
+   * @param p3x x-coordinate of the starting point of the second line.
+   * @param p3y y-coordinate of the starting point of the second line.
+   * @param p4x x-coordinate of the ending point of the second line.
+   * @param p4y y-coordinate of the ending point of the second line.
+   * @param keepOrientation A value indicating if we keep the orientation, aka knowing if the angle is clockwise or not.
+   */
+  public static getAngleBetween(
+    p1x: number,
+    p1y: number,
+    p2x: number,
+    p2y: number,
+    p3x: number,
+    p3y: number,
+    p4x: number,
+    p4y: number,
+    keepOrientation: boolean = true,
+  ): number {
+    let l1 = new Line2d(new Point2d(p1x, p1y), new Point2d(p2x, p2y));
+    let l2 = Line2d.reorder(
+      new Line2d(new Point2d(p3x, p3y), new Point2d(p4x, p4y)),
+      l1,
+    );
+
+    const dAx = l1.p2.x - l1.p1.x;
+    const dAy = l1.p2.y - l1.p1.y;
+    const dBx = l2.p2.x - l2.p1.x;
+    const dBy = l2.p2.y - l2.p1.y;
+
+    const angleRad = Math.atan2(dAx * dBy - dAy * dBx, dAx * dBx + dAy * dBy);
+    const angleDeg = Number.parseFloat((angleRad * (180 / Math.PI)).toFixed(2));
+
+    return keepOrientation ? angleDeg : Math.abs(angleDeg);
   }
 
   get p1() {
@@ -124,33 +184,21 @@ export class Line2d implements IShape2d {
   /**
    * Gets the angle between the given line.
    * @param line The reference line.
-   * @param interiorAngle A value indicating if this is the interior that is expected.
+   * @param keepOrientation A value indicating if we keep the orientation, aka knowing if the angle is clockwise or not.
    * @returns The angle.
    */
-  angleTo(line: Line2d, interiorAngle: boolean = true): number {
-    const dAx = this.p2.x - this.p1.x;
-    const dAy = this.p2.y - this.p1.y;
-    const dBx = line.p2.x - line.p1.x;
-    const dBy = line.p2.y - line.p1.y;
-
-    const angleRad = Math.atan2(dAx * dBy - dAy * dBx, dAx * dBx + dAy * dBy);
-    const angleDeg = Number.parseFloat((angleRad * (180 / Math.PI)).toFixed(2));
-
-    if (angleDeg == 0) {
-      return 0;
-    }
-
-    if (interiorAngle) {
-      if (this.p2.x <= line.p1.x && Math.abs(angleDeg) <= 90) {
-        return 180 - angleDeg;
-      }
-
-      if (angleDeg < 0) {
-        return 180 + angleDeg;
-      }
-    }
-
-    return angleDeg;
+  angleTo(line: Line2d, keepOrientation: boolean = true): number {
+    return Line2d.getAngleBetween(
+      this.p1.x,
+      this.p1.y,
+      this.p2.x,
+      this.p2.y,
+      line.p1.x,
+      line.p1.y,
+      line.p2.x,
+      line.p2.y,
+      keepOrientation,
+    );
   }
 
   /**
@@ -258,17 +306,16 @@ export class Line2d implements IShape2d {
       p4.x = p1.x + (clockwise === true ? length : -length);
       p4.y = p3.y;
     } else {
-      const a = this.angleTo(
-        new Line2d(
-          p1,
-          new Point2d(p1.x + length * (clockwise === true ? -1 : 1), p1.y),
-        ),
-        false,
-      );
+      const a = this.angleTo(new Line2d(p1, new Point2d(p1.x + length, p1.y)));
+
       const teta = (90 - a) / (180 / Math.PI);
 
-      p4.x = Number.parseFloat((p3.x + length * Math.cos(teta)).toFixed(2));
-      p4.y = Number.parseFloat((p3.y + length * Math.sin(teta)).toFixed(2));
+      p4.x = Number.parseFloat(
+        (p3.x + length * Math.cos(teta) * (clockwise ? -1 : 1)).toFixed(2),
+      );
+      p4.y = Number.parseFloat(
+        (p3.y + length * Math.sin(teta) * (clockwise ? -1 : 1)).toFixed(2),
+      );
     }
 
     return new Line2d(p3, p4);

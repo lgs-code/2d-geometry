@@ -15,7 +15,15 @@
   },
   "keywords": [
     "2d",
-    "geometry"
+    "geometry",
+    "point",
+    "line",
+    "circle",
+    "ellipse",
+    "polygon",
+    "quadrilateral",
+    "arc",
+    "sector"
   ],
   "author": "LGS",
   "license": "MIT",

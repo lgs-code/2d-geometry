@@ -8,6 +8,33 @@ import { Intersection2d } from "./intersection2d";
  * @see {@link https://en.wikipedia.org/wiki/Ellipse}
  */
 export class Ellipse2d implements IClosedShape2d {
+  /**
+   * Gets the perimeter of an ellipse.
+   * @param semiMajorAxis The ellipse semi-major axis.
+   * @param semiMinorAxis The ellipse semi-minor axis.
+   */
+  public static getPerimeter(
+    semiMajorAxis: number,
+    semiMinorAxis: number,
+  ): number {
+    return (
+      2 *
+      Math.PI *
+      Math.sqrt(
+        (semiMajorAxis * semiMajorAxis + semiMinorAxis * semiMinorAxis) / 2.0,
+      )
+    );
+  }
+
+  /**
+   * Gets the area of an ellipse.
+   * @param semiMajorAxis The ellipse semi-major axis.
+   * @param semiMinorAxis The ellipse semi-minor axis.
+   */
+  public static getArea(semiMajorAxis: number, semiMinorAxis: number): number {
+    return Math.PI * semiMajorAxis * semiMinorAxis;
+  }
+
   private _center: Point2d;
   /**
    * Gets or sets the width of the ellipse.
@@ -35,22 +62,18 @@ export class Ellipse2d implements IClosedShape2d {
    * Gets the perimeter of the ellipse.
    */
   get perimeter(): number {
-    const a = this.width / 2;
-    const b = this.height / 2;
-    const perimeter = 2 * Math.PI * Math.sqrt((a * a + b * b) / 2.0);
-
-    return Number.parseFloat(perimeter.toFixed(2));
+    return Number.parseFloat(
+      Ellipse2d.getPerimeter(this.width / 2, this.height / 2).toFixed(2),
+    );
   }
 
   /**
    * Gets the area of the ellipse.
    */
   get area(): number {
-    const a = this.width / 2;
-    const b = this.height / 2;
-    const area = Math.PI * a * b;
-
-    return Number.parseFloat(area.toFixed(2));
+    return Number.parseFloat(
+      Ellipse2d.getArea(this.width / 2, this.height / 2).toFixed(2),
+    );
   }
 
   /**

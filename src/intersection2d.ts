@@ -9,6 +9,8 @@ import { Rect2d } from "./rect2d";
 import { Square2d } from "./square2d";
 import { Circle2d } from "./circle2d";
 import { Ellipse2d } from "./ellipse2d";
+import { Arc2d } from "./arc2d";
+import { Sector2d } from "./sector2d";
 import { Polynomial } from "./polynomial";
 
 /**
@@ -17,6 +19,20 @@ import { Polynomial } from "./polynomial";
  * @see {@link https://en.wikipedia.org/wiki/Intersection_(geometry)}
  */
 export namespace Intersection2d {
+  function removeDuplicatedPoints(points: Point2d[]): Point2d[] {
+    const map = new Map();
+    for (const item of points) {
+      map.set(`(${item.x}x${item.y})`, item);
+    }
+    return [...map.values()];
+  }
+
+  /**
+   * Gets intersection points between a line and a shape.
+   * @param line The reference line.
+   * @param shape The reference shape.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
   function getLineIntersections(line: Line2d, shape: IShape2d): Point2d[] {
     let intersections: Point2d[] = [];
 
@@ -43,11 +59,23 @@ export namespace Intersection2d {
 
       case Ellipse2d:
         return getLineEllipseIntersections(line, shape as Ellipse2d);
+
+      case Arc2d:
+        return getArcLineIntersections(shape as Arc2d, line);
+
+      case Sector2d:
+        return getSectorLineIntersections(shape as Sector2d, line);
     }
 
-    return intersections;
+    return removeDuplicatedPoints(intersections);
   }
 
+  /**
+   * Gets intersection points between a polygon and a shape.
+   * @param polygon The reference polygon.
+   * @param shape The reference shape.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
   function getPolygonIntersections(
     polygon: Polygon2d,
     shape: IShape2d,
@@ -90,11 +118,31 @@ export namespace Intersection2d {
           intersections.push(...getEllipseLineIntersections(ellipse, edge));
         });
         break;
+
+      case Arc2d:
+        const arc = shape as Arc2d;
+        polygon.edges.forEach((edge: Line2d) => {
+          intersections.push(...getArcLineIntersections(arc, edge));
+        });
+        break;
+
+      case Sector2d:
+        const sector = shape as Sector2d;
+        polygon.edges.forEach((edge: Line2d) => {
+          intersections.push(...getSectorLineIntersections(sector, edge));
+        });
+        break;
     }
 
-    return intersections;
+    return removeDuplicatedPoints(intersections);
   }
 
+  /**
+   * Gets intersection points between a circle and a shape.
+   * @param circle The reference circle.
+   * @param shape The reference shape.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
   function getCircleIntersections(
     circle: Circle2d,
     shape: IShape2d,
@@ -121,11 +169,23 @@ export namespace Intersection2d {
 
       case Ellipse2d:
         return getCircleEllipseIntersections(circle, shape as Ellipse2d);
+
+      case Arc2d:
+        return getArcCircleIntersections(shape as Arc2d, circle);
+
+      case Sector2d:
+        return getSectorCircleIntersections(shape as Sector2d, circle);
     }
 
-    return intersections;
+    return removeDuplicatedPoints(intersections);
   }
 
+  /**
+   * Gets intersection points between an ellipse and a shape.
+   * @param ellipse The reference ellipse.
+   * @param shape The reference shape.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
   function getEllipseIntersections(
     ellipse: Ellipse2d,
     shape: IShape2d,
@@ -152,6 +212,95 @@ export namespace Intersection2d {
 
       case Ellipse2d:
         return getEllipseEllipseIntersections(ellipse, shape as Ellipse2d);
+
+      case Arc2d:
+        return getEllipseArcIntersections(ellipse, shape as Arc2d);
+
+      case Sector2d:
+        return getEllipseSectorIntersections(ellipse, shape as Sector2d);
+    }
+
+    return intersections;
+  }
+
+  /**
+   * Gets intersection points between an arc and a shape.
+   * @param arc The reference arc.
+   * @param shape The reference shape.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  function getArcIntersections(arc: Arc2d, shape: IShape2d): Point2d[] {
+    let intersections: Point2d[] = [];
+
+    switch (shape.constructor) {
+      case Line2d:
+        return getArcLineIntersections(arc, shape as Line2d);
+
+      case Polygon2d:
+      case Triangle2d:
+      case Quadiralteral2d:
+      case Rect2d:
+      case Square2d:
+        const polygon = shape as Polygon2d;
+        polygon.edges.forEach((edge: Line2d) => {
+          intersections.push(...getArcLineIntersections(arc, edge));
+        });
+        break;
+
+      case Circle2d:
+        return getArcCircleIntersections(arc, shape as Circle2d);
+
+      case Ellipse2d:
+        return getArcEllipseIntersections(arc, shape as Ellipse2d);
+
+      case Arc2d:
+        return getArcArcIntersections(arc, shape as Arc2d);
+
+      case Sector2d:
+        return getArcSectorIntersections(arc, shape as Sector2d);
+    }
+
+    return intersections;
+  }
+
+  /**
+   * Gets intersection points between a sector and a shape.
+   * @param sector The reference sector.
+   * @param shape The reference shape.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  function getSectorIntersections(
+    sector: Sector2d,
+    shape: IShape2d,
+  ): Point2d[] {
+    let intersections: Point2d[] = [];
+
+    switch (shape.constructor) {
+      case Line2d:
+        return getSectorLineIntersections(sector, shape as Line2d);
+
+      case Polygon2d:
+      case Triangle2d:
+      case Quadiralteral2d:
+      case Rect2d:
+      case Square2d:
+        const polygon = shape as Polygon2d;
+        polygon.edges.forEach((edge: Line2d) => {
+          intersections.push(...getSectorLineIntersections(sector, edge));
+        });
+        break;
+
+      case Circle2d:
+        return getSectorCircleIntersections(sector, shape as Circle2d);
+
+      case Ellipse2d:
+        return getSectorEllipseIntersections(sector, shape as Ellipse2d);
+
+      case Arc2d:
+        return getArcSectorIntersections(shape as Arc2d, sector);
+
+      case Sector2d:
+        return getSectorSectorIntersections(sector, shape as Sector2d);
     }
 
     return intersections;
@@ -180,6 +329,10 @@ export namespace Intersection2d {
         return getCircleIntersections(shape1 as Circle2d, shape2);
       case Ellipse2d:
         return getEllipseIntersections(shape1 as Ellipse2d, shape2);
+      case Arc2d:
+        return getArcIntersections(shape1 as Arc2d, shape2);
+      case Sector2d:
+        return getSectorIntersections(shape1 as Sector2d, shape2);
     }
 
     /* istanbul ignore next */
@@ -352,7 +505,7 @@ export namespace Intersection2d {
     // tangent
     if (deter === 0) {
       const secant = line.getOrthogonalLineThrough(c);
-      return [getLineLineIntersection(secant, line)];
+      return [getSegmentSegmentIntersection(secant, line)];
     }
 
     const e = Math.sqrt(deter);
@@ -671,5 +824,444 @@ export namespace Intersection2d {
     }
 
     return intersections;
+  }
+
+  /**
+   * Checks if a point is located in between the lines define
+   * @param point The reference point.
+   * @param from The starting point defining the sector to look in.
+   * @param to The ending point defining the sector to look in.
+   * @param center The center point defining the sector to look in.
+   * @param angle The angle of the area (optional).
+   * @returns true if the point is in the area defined by the points.
+   */
+  export function isPointInRadar(
+    point: Point2d,
+    from: Point2d,
+    to: Point2d,
+    center: Point2d,
+    angle?: number,
+  ): boolean {
+    const fromAngle: number = Line2d.getAngleBetween(
+      center.x,
+      center.y,
+      from.x,
+      from.y,
+      center.x,
+      center.y,
+      point.x,
+      point.y,
+      false,
+    );
+
+    const toAngle: number = Line2d.getAngleBetween(
+      center.x,
+      center.y,
+      to.x,
+      to.y,
+      center.x,
+      center.y,
+      point.x,
+      point.y,
+      false,
+    );
+
+    if (!angle) {
+      angle = Line2d.getAngleBetween(
+        center.x,
+        center.y,
+        from.x,
+        from.y,
+        center.x,
+        center.y,
+        to.x,
+        to.y,
+        false,
+      );
+    }
+
+    return fromAngle + toAngle === angle;
+  }
+
+  /**
+   * Gets intersection points between a line and an arc.
+   * @param line The reference line.
+   * @param arc The reference arc.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getLineArcIntersections(line: Line2d, arc: Arc2d): Point2d[] {
+    return getArcLineIntersections(arc, line);
+  }
+
+  /**
+   * Gets intersection points between an arc and a line.
+   * @param arc The reference arc.
+   * @param line The reference line.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getArcLineIntersections(arc: Arc2d, line: Line2d): Point2d[] {
+    const intersections: Point2d[] = arc.isCircular
+      ? getCircleLineIntersections(
+          new Circle2d(arc.center, arc.from.distanceTo(arc.center)),
+          line,
+        )
+      : getEllipseLineIntersections(
+          new Ellipse2d(
+            arc.center,
+            arc.from.distanceTo(arc.center) * 2,
+            arc.to.distanceTo(arc.center) * 2,
+          ),
+          line,
+        );
+
+    return intersections.filter((point: Point2d) =>
+      isPointInRadar(point, arc.from, arc.to, arc.center, arc.angle),
+    );
+  }
+
+  /**
+   * Gets intersection points between a circle and an arc.
+   * @param circle The reference circle.
+   * @param arc The reference arc.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getCircleArcIntersections(
+    circle: Circle2d,
+    arc: Arc2d,
+  ): Point2d[] {
+    return getArcCircleIntersections(arc, circle);
+  }
+
+  /**
+   * Gets intersection points between an arc and a circle.
+   * @param arc The reference arc.
+   * @param circle The reference circle.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getArcCircleIntersections(
+    arc: Arc2d,
+    circle: Circle2d,
+  ): Point2d[] {
+    const intersections: Point2d[] = arc.isCircular
+      ? getCircleCircleIntersections(
+          new Circle2d(arc.center, arc.from.distanceTo(arc.center)),
+          circle,
+        )
+      : getEllipseCircleIntersections(
+          new Ellipse2d(
+            arc.center,
+            arc.from.distanceTo(arc.center) * 2,
+            arc.to.distanceTo(arc.center) * 2,
+          ),
+          circle,
+        );
+
+    return intersections.filter((point: Point2d) =>
+      isPointInRadar(point, arc.from, arc.to, arc.center, arc.angle),
+    );
+  }
+
+  /**
+   * Gets intersection points between an ellipse and an arc.
+   * @param ellipse The reference ellipse.
+   * @param arc The reference arc.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getEllipseArcIntersections(
+    ellipse: Ellipse2d,
+    arc: Arc2d,
+  ): Point2d[] {
+    return getArcEllipseIntersections(arc, ellipse);
+  }
+
+  /**
+   * Gets intersection points between an arc and an ellipse.
+   * @param arc The reference arc.
+   * @param ellipse The reference ellipse.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getArcEllipseIntersections(
+    arc: Arc2d,
+    ellipse: Ellipse2d,
+  ): Point2d[] {
+    const intersections: Point2d[] = arc.isCircular
+      ? getCircleEllipseIntersections(
+          new Circle2d(arc.center, arc.from.distanceTo(arc.center)),
+          ellipse,
+        )
+      : getEllipseEllipseIntersections(
+          new Ellipse2d(
+            arc.center,
+            arc.from.distanceTo(arc.center) * 2,
+            arc.to.distanceTo(arc.center) * 2,
+          ),
+          ellipse,
+        );
+
+    return removeDuplicatedPoints(
+      intersections.filter((point: Point2d) =>
+        isPointInRadar(point, arc.from, arc.to, arc.center, arc.angle),
+      ),
+    );
+  }
+
+  /**
+   * Gets intersection points between two arcs.
+   * @param arc1 The first reference arc.
+   * @param arc2 The second reference arc.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getArcArcIntersections(arc1: Arc2d, arc2: Arc2d): Point2d[] {
+    const arc1Circular = arc1.isCircular;
+    const arc2Circular = arc2.isCircular;
+
+    let intersections: Point2d[] = [];
+
+    if (arc1Circular && !arc2Circular) {
+      intersections = getCircleEllipseIntersections(
+        new Circle2d(arc1.center, arc1.from.distanceTo(arc1.center)),
+        new Ellipse2d(
+          arc2.center,
+          arc2.from.distanceTo(arc2.center) * 2,
+          arc2.to.distanceTo(arc2.center) * 2,
+        ),
+      );
+    }
+
+    if (!arc1Circular && arc2Circular) {
+      intersections = getEllipseCircleIntersections(
+        new Ellipse2d(
+          arc1.center,
+          arc1.from.distanceTo(arc1.center) * 2,
+          arc1.to.distanceTo(arc1.center) * 2,
+        ),
+        new Circle2d(arc2.center, arc2.from.distanceTo(arc2.center)),
+      );
+    }
+
+    if (arc1Circular && arc2Circular) {
+      intersections = getCircleCircleIntersections(
+        new Circle2d(arc1.center, arc1.from.distanceTo(arc1.center)),
+        new Circle2d(arc2.center, arc2.from.distanceTo(arc2.center)),
+      );
+    }
+
+    return removeDuplicatedPoints(
+      intersections.filter(
+        (point: Point2d) =>
+          isPointInRadar(point, arc1.from, arc1.to, arc1.center, arc1.angle) &&
+          isPointInRadar(point, arc2.from, arc2.to, arc2.center, arc2.angle),
+      ),
+    );
+  }
+
+  /**
+   * Gets intersection points between a line and a sector.
+   * @param line The reference line.
+   * @param sector The reference sector.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getLineSectorIntersections(
+    line: Line2d,
+    sector: Sector2d,
+  ): Point2d[] {
+    return getSectorLineIntersections(sector, line);
+  }
+
+  /**
+   * Gets intersection points between a sector and a line.
+   * @param sector The reference sector.
+   * @param line The reference line.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getSectorLineIntersections(
+    sector: Sector2d,
+    line: Line2d,
+  ): Point2d[] {
+    const arcIntersections: Point2d[] = getArcLineIntersections(sector, line);
+
+    const fromIntersection: Point2d = getSegmentSegmentIntersection(
+      new Line2d(sector.center, sector.from),
+      line,
+    );
+    if (fromIntersection !== null) {
+      arcIntersections.push(fromIntersection);
+    }
+
+    const toIntersection: Point2d = getSegmentSegmentIntersection(
+      new Line2d(sector.center, sector.to),
+      line,
+    );
+    if (toIntersection !== null) {
+      arcIntersections.push(toIntersection);
+    }
+
+    return removeDuplicatedPoints(arcIntersections);
+  }
+
+  /**
+   * Gets intersection points between a circle and a sector.
+   * @param circle The reference circle.
+   * @param sector The reference sector.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getCircleSectorIntersections(
+    circle: Circle2d,
+    sector: Sector2d,
+  ): Point2d[] {
+    return getSectorCircleIntersections(sector, circle);
+  }
+
+  /**
+   * Gets intersection points between a sector and a circle.
+   * @param sector The reference sector.
+   * @param circle The reference circle.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getSectorCircleIntersections(
+    sector: Sector2d,
+    circle: Circle2d,
+  ): Point2d[] {
+    const arcIntersections: Point2d[] = getArcCircleIntersections(
+      sector,
+      circle,
+    );
+
+    const fromIntersections: Point2d[] = getLineCircleIntersections(
+      new Line2d(sector.center, sector.from),
+      circle,
+    );
+
+    const toIntersections: Point2d[] = getLineCircleIntersections(
+      new Line2d(sector.center, sector.to),
+      circle,
+    );
+
+    return removeDuplicatedPoints(
+      arcIntersections.concat(fromIntersections, toIntersections),
+    );
+  }
+
+  /**
+   * Gets intersection points between an ellipse and a sector.
+   * @param ellipse The reference ellipse.
+   * @param sector The reference sector.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getEllipseSectorIntersections(
+    ellipse: Ellipse2d,
+    sector: Sector2d,
+  ): Point2d[] {
+    return getSectorEllipseIntersections(sector, ellipse);
+  }
+
+  /**
+   * Gets intersection points between a sector and an ellipse.
+   * @param sector The reference sector.
+   * @param ellipse The reference ellipse.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getSectorEllipseIntersections(
+    sector: Sector2d,
+    ellipse: Ellipse2d,
+  ): Point2d[] {
+    const arcIntersections: Point2d[] = getArcEllipseIntersections(
+      sector,
+      ellipse,
+    );
+
+    const fromIntersections: Point2d[] = getLineEllipseIntersections(
+      new Line2d(sector.center, sector.from),
+      ellipse,
+    );
+
+    const toIntersections: Point2d[] = getLineEllipseIntersections(
+      new Line2d(sector.center, sector.to),
+      ellipse,
+    );
+
+    return removeDuplicatedPoints(
+      arcIntersections.concat(fromIntersections, toIntersections),
+    );
+  }
+
+  /**
+   * Gets intersection points between an arc and a sector.
+   * @param arc The reference arc.
+   * @param sector The reference sector.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getArcSectorIntersections(
+    arc: Arc2d,
+    sector: Sector2d,
+  ): Point2d[] {
+    return getSectorArcIntersections(sector, arc);
+  }
+
+  /**
+   * Gets intersection points between a sector and an arc.
+   * @param sector The reference sector.
+   * @param arc The reference arc.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getSectorArcIntersections(
+    sector: Sector2d,
+    arc: Arc2d,
+  ): Point2d[] {
+    const arcIntersections: Point2d[] = getArcArcIntersections(sector, arc);
+
+    const fromIntersections: Point2d[] = getLineArcIntersections(
+      new Line2d(sector.center, sector.from),
+      arc,
+    );
+
+    const toIntersections: Point2d[] = getLineArcIntersections(
+      new Line2d(sector.center, sector.to),
+      arc,
+    );
+
+    return removeDuplicatedPoints(
+      arcIntersections.concat(fromIntersections, toIntersections),
+    );
+  }
+
+  /**
+   * Gets intersection points between two sectors.
+   * @param sector1 The first reference sector.
+   * @param sector2 The second reference sector.
+   * @returns An array of intersection points if any, otherwise an empty array.
+   */
+  export function getSectorSectorIntersections(
+    sector1: Sector2d,
+    sector2: Sector2d,
+  ): Point2d[] {
+    const arcIntersections: Point2d[] = getArcArcIntersections(
+      sector1,
+      sector2,
+    );
+    const sector1Lines: Line2d[] = [
+      new Line2d(sector1.center, sector1.from),
+      new Line2d(sector1.center, sector1.to),
+    ];
+
+    const sector2Lines: Line2d[] = [
+      new Line2d(sector2.center, sector2.from),
+      new Line2d(sector2.center, sector2.to),
+    ];
+
+    const lineIntersections: Point2d[] = [];
+    sector1Lines.forEach((s1) => {
+      const match1 = getSegmentSegmentIntersection(s1, sector2Lines[0]);
+      if (match1 !== null) {
+        lineIntersections.push(match1);
+      }
+
+      const match2 = getSegmentSegmentIntersection(s1, sector2Lines[1]);
+      if (match2 !== null) {
+        lineIntersections.push(match2);
+      }
+    });
+
+    return removeDuplicatedPoints(arcIntersections.concat(lineIntersections));
   }
 }

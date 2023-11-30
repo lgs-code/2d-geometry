@@ -141,9 +141,15 @@ export class Polygon2d implements IClosedShape2d {
    */
   get interiorAngles(): number[] {
     const bound = this.edges.length - 1;
-    return this.edges.map((edge, index, array) =>
-      index === bound ? edge.angleTo(array[0]) : edge.angleTo(array[index + 1]),
-    );
+
+    return this.edges.map((edge, index, array) => {
+      const angle =
+        index === bound
+          ? edge.angleTo(array[0])
+          : edge.angleTo(array[index + 1]);
+
+      return angle > 0 ? 360 - angle : Math.abs(angle);
+    });
   }
 
   /**
@@ -255,7 +261,10 @@ export class Polygon2d implements IClosedShape2d {
           ? edge.angleTo(array[0])
           : edge.angleTo(array[index + 1]);
 
-      return { angle: angle, point: edge.p2 };
+      return {
+        angle: angle > 0 ? 360 - angle : Math.abs(angle),
+        point: edge.p2,
+      };
     });
 
     const triangles: Point2d[][] = [];
