@@ -1,4 +1,5 @@
 import { log } from "console";
+import { pointsDoMatch } from "./test-utils";
 import {
   Line2d,
   Point2d,
@@ -6,6 +7,8 @@ import {
   Vector2d,
   Circle2d,
   Ellipse2d,
+  Arc2d,
+  Sector2d,
 } from "../build/index";
 
 describe("Rect2d", () => {
@@ -298,6 +301,31 @@ describe("Rect2d", () => {
     },
   ];
 
+  const intersectArcList = [
+    {
+      rect: [0, 0, 5, 5],
+      arc: [5, 0, 0, 5, 0, 0],
+      intersect: true,
+      intersectAt: [
+        [5, 0],
+        [0, 5],
+      ],
+    },
+  ];
+
+  const intersectSectorList = [
+    {
+      rect: [0, 0, 5, 5],
+      sector: [5, 0, 0, 5, 0, 0],
+      intersect: true,
+      intersectAt: [
+        [5, 0],
+        [0, 0],
+        [0, 5],
+      ],
+    },
+  ];
+
   describe("doesIntersect", () => {
     it.each(intersectLineList)(
       "check if a line intersects a rectangle",
@@ -359,6 +387,32 @@ describe("Rect2d", () => {
         expect(r.doesIntersect(e)).toEqual(intersect);
       },
     );
+
+    it.each(intersectArcList)(
+      "check if a rectangle intersects an arc",
+      ({ rect, arc, intersect }) => {
+        const r = new Rect2d(new Point2d(rect[0], rect[1]), rect[2], rect[3]);
+        const a = new Arc2d(
+          new Point2d(arc[0], arc[1]),
+          new Point2d(arc[2], arc[3]),
+          new Point2d(arc[4], arc[5]),
+        );
+        expect(r.doesIntersect(a)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectSectorList)(
+      "check if a rectangle intersects a sector",
+      ({ rect, sector, intersect }) => {
+        const r = new Rect2d(new Point2d(rect[0], rect[1]), rect[2], rect[3]);
+        const s = new Sector2d(
+          new Point2d(sector[0], sector[1]),
+          new Point2d(sector[2], sector[3]),
+          new Point2d(sector[4], sector[5]),
+        );
+        expect(r.doesIntersect(s)).toEqual(intersect);
+      },
+    );
   });
 
   describe("getIntersectionPoints", () => {
@@ -380,12 +434,7 @@ describe("Rect2d", () => {
 
         expect(points.length).toEqual(intersectAt.length);
 
-        expect(
-          points.length > 0 &&
-            points.every((p, i) => {
-              return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
-            }),
-        ).toEqual(intersect);
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
       },
     );
 
@@ -408,12 +457,45 @@ describe("Rect2d", () => {
 
         expect(points.length).toEqual(intersectAt.length);
 
-        expect(
-          points.length > 0 &&
-            points.every((p, i) => {
-              return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
-            }),
-        ).toEqual(intersect);
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectArcList)(
+      "get intersection points with an arc",
+      ({ rect, arc, intersect, intersectAt }) => {
+        const r = new Rect2d(new Point2d(rect[0], rect[1]), rect[2], rect[3]);
+
+        const a = new Arc2d(
+          new Point2d(arc[0], arc[1]),
+          new Point2d(arc[2], arc[3]),
+          new Point2d(arc[4], arc[5]),
+        );
+
+        var points = r.getIntersectionPoints(a);
+
+        expect(points.length).toEqual(intersectAt.length);
+
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectSectorList)(
+      "get intersection points with a sector",
+      ({ rect, sector, intersect, intersectAt }) => {
+        const r = new Rect2d(new Point2d(rect[0], rect[1]), rect[2], rect[3]);
+
+        const s = new Sector2d(
+          new Point2d(sector[0], sector[1]),
+          new Point2d(sector[2], sector[3]),
+          new Point2d(sector[4], sector[5]),
+        );
+
+        var points = r.getIntersectionPoints(s);
+
+        expect(points.length).toEqual(intersectAt.length);
+
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
       },
     );
   });

@@ -140,9 +140,9 @@ export class Triangle2d extends Polygon2d {
     const n3 = this.normalize(this.edges[2], this.edges[0]);
 
     const angles = [
-      n1[0].angleTo(n1[1]),
-      n2[0].angleTo(n2[1]),
-      n3[0].angleTo(n3[1]),
+      n1[0].angleTo(n1[1], false),
+      n2[0].angleTo(n2[1], false),
+      n3[0].angleTo(n3[1], false),
     ];
 
     return angles.some((a) => a === 90);

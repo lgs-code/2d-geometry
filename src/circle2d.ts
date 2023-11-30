@@ -8,6 +8,22 @@ import { Intersection2d } from "./intersection2d";
  * @see {@link https://en.wikipedia.org/wiki/Circle}
  */
 export class Circle2d implements IClosedShape2d {
+  /**
+   * Gets the perimeter of a circle.
+   * @param radius The circle radius.
+   */
+  public static getPerimeter(radius: number): number {
+    return 2 * Math.PI * radius;
+  }
+
+  /**
+   * Gets the area of a circle.
+   * @param radius The circle radius.
+   */
+  public static getArea(radius: number): number {
+    return Math.PI * Math.pow(radius, 2);
+  }
+
   private _center: Point2d;
   /**
    * Gets or sets the radius.
@@ -30,7 +46,7 @@ export class Circle2d implements IClosedShape2d {
    * Gets the perimeter of the circle.
    */
   get perimeter(): number {
-    return Number.parseFloat((2 * Math.PI * this.radius).toFixed(2));
+    return Number.parseFloat(Circle2d.getPerimeter(this.radius).toFixed(2));
   }
 
   /**
@@ -44,7 +60,7 @@ export class Circle2d implements IClosedShape2d {
    * Gets the area of the circle.
    */
   get area(): number {
-    return Number.parseFloat((Math.PI * Math.pow(this.radius, 2)).toFixed(2));
+    return Number.parseFloat(Circle2d.getArea(this.radius).toFixed(2));
   }
 
   /**

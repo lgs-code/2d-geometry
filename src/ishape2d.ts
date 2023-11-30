@@ -45,6 +45,16 @@ export interface IShape2d {
  */
 export interface IClosedShape2d extends IShape2d {
   /**
+   * Gets the are of the shape.
+   */
+  readonly area: number;
+
+  /**
+   * Gets the perimeter of the shape.
+   */
+  readonly perimeter: number;
+
+  /**
    * Checks if the given point is located inside the shape.
    * @param point The reference point.
    * @returns true if the point is inside the shape.

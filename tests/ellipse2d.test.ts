@@ -1,4 +1,5 @@
 import { log } from "console";
+import { pointsDoMatch } from "./test-utils";
 import {
   Ellipse2d,
   Point2d,
@@ -6,6 +7,8 @@ import {
   Polygon2d,
   Line2d,
   Vector2d,
+  Arc2d,
+  Sector2d,
 } from "../build/index";
 
 describe("Ellipse2d", () => {
@@ -283,6 +286,29 @@ describe("Ellipse2d", () => {
     },
   ];
 
+  const intersectArcList = [
+    {
+      center: [0, 0],
+      axis: [3, 2],
+      arc: [5, 0, 0, 5, 0, 0],
+      intersect: false,
+      intersectAt: [],
+    },
+  ];
+
+  const intersectSectorList = [
+    {
+      center: [0, 0],
+      axis: [3, 2],
+      sector: [5, 0, 0, 5, 0, 0],
+      intersect: true,
+      intersectAt: [
+        [1.5, 0],
+        [0, 1],
+      ],
+    },
+  ];
+
   describe("doesIntersect", () => {
     it.each(intersectLineList)(
       "check if an ellipse intersects with a line",
@@ -333,6 +359,44 @@ describe("Ellipse2d", () => {
         expect(e.doesIntersect(c)).toEqual(intersect);
       },
     );
+
+    it.each(intersectArcList)(
+      "check if an ellipse intersects with an arc",
+      ({ center, axis, arc, intersect }) => {
+        const e = new Ellipse2d(
+          new Point2d(center[0], center[1]),
+          axis[0],
+          axis[1],
+        );
+
+        const a = new Arc2d(
+          new Point2d(arc[0], arc[1]),
+          new Point2d(arc[2], arc[3]),
+          new Point2d(arc[4], arc[5]),
+        );
+
+        expect(e.doesIntersect(a)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectSectorList)(
+      "check if an ellipse intersects with a sector",
+      ({ center, axis, sector, intersect }) => {
+        const e = new Ellipse2d(
+          new Point2d(center[0], center[1]),
+          axis[0],
+          axis[1],
+        );
+
+        const s = new Sector2d(
+          new Point2d(sector[0], sector[1]),
+          new Point2d(sector[2], sector[3]),
+          new Point2d(sector[4], sector[5]),
+        );
+
+        expect(e.doesIntersect(s)).toEqual(intersect);
+      },
+    );
   });
 
   describe("getIntersectionPoints", () => {
@@ -353,12 +417,7 @@ describe("Ellipse2d", () => {
 
         expect(points.length).toEqual(intersectAt.length);
 
-        expect(
-          points.length > 0 &&
-            points.every((p, i) => {
-              return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
-            }),
-        ).toEqual(intersect);
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
       },
     );
 
@@ -379,12 +438,7 @@ describe("Ellipse2d", () => {
 
         expect(points.length).toEqual(intersectAt.length);
 
-        expect(
-          points.length > 0 &&
-            points.every((p, i) => {
-              return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
-            }),
-        ).toEqual(intersect);
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
       },
     );
 
@@ -403,12 +457,53 @@ describe("Ellipse2d", () => {
 
         expect(points.length).toEqual(intersectAt.length);
 
-        expect(
-          points.length > 0 &&
-            points.every((p, i) => {
-              return p.x === intersectAt[i][0] && p.y === intersectAt[i][1];
-            }),
-        ).toEqual(intersect);
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectArcList)(
+      "get intersection points with an arc",
+      ({ center, axis, arc, intersect, intersectAt }) => {
+        const e = new Ellipse2d(
+          new Point2d(center[0], center[1]),
+          axis[0],
+          axis[1],
+        );
+
+        const a = new Arc2d(
+          new Point2d(arc[0], arc[1]),
+          new Point2d(arc[2], arc[3]),
+          new Point2d(arc[4], arc[5]),
+        );
+
+        var points = e.getIntersectionPoints(a);
+
+        expect(points.length).toEqual(intersectAt.length);
+
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
+      },
+    );
+
+    it.each(intersectSectorList)(
+      "get intersection points with a sector",
+      ({ center, axis, sector, intersect, intersectAt }) => {
+        const e = new Ellipse2d(
+          new Point2d(center[0], center[1]),
+          axis[0],
+          axis[1],
+        );
+
+        const s = new Sector2d(
+          new Point2d(sector[0], sector[1]),
+          new Point2d(sector[2], sector[3]),
+          new Point2d(sector[4], sector[5]),
+        );
+
+        var points = e.getIntersectionPoints(s);
+
+        expect(points.length).toEqual(intersectAt.length);
+
+        expect(pointsDoMatch(points, intersectAt)).toEqual(intersect);
       },
     );
   });
